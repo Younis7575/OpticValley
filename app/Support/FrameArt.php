@@ -26,6 +26,8 @@ class FrameArt
         'grey' => ['#5d6168', '#a9adb3'],
         'honey' => ['#8a5a22', '#c98d45'],
         'clear' => ['#c6ccd3', '#eef1f4'],
+        'red' => ['#a3161f', '#d9363e'],
+        'pink' => ['#d98fa3', '#f3c3cf'],
     ];
 
     public const TINTS = [
