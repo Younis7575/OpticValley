@@ -1,0 +1,153 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, pdo_mysql, intl, gd, zip, bcmath, dom
+          coverage: none
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install JS dependencies & build assets
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - name: Run test suite
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test
+
+      - name: Build production bundle
+        if: github.event_name != 'pull_request'
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+          rm -rf node_modules tests .env storage/logs/*.log public/uploads public/hot
+          tar --exclude='.git' --exclude='.github' --exclude='storage/app/private/*' --exclude='storage/framework/sessions/*' \
+              --exclude='storage/framework/views/*' --exclude='database/database.sqlite' --exclude='.claude' \
+              --exclude='OpticValley_Claude_Master_Prompt.md' -czf /tmp/release.tar.gz .
+          mv /tmp/release.tar.gz release.tar.gz
+          ls -lh release.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: release
+          path: release.tar.gz
+          retention-days: 7
+
+  deploy:
+    name: Deploy to production
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.APP_URL || 'https://opticvalley.co' }}
+    env:
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+    steps:
+      - name: Check deployment secrets
+        id: check
+        run: |
+          missing=""
+          for v in SERVER_HOST SERVER_USER SERVER_PORT DEPLOY_PATH; do [ -z "${!v}" ] && missing="$missing $v"; done
+          [ "${{ secrets.SERVER_SSH_KEY != '' }}" != "true" ] && missing="$missing SERVER_SSH_KEY"
+          if [ -n "$missing" ]; then
+            echo "::warning::Deployment skipped — missing repository secrets:$missing"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          sparse-checkout: deployment
+
+      - uses: actions/download-artifact@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          name: release
+
+      - name: Configure SSH
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SERVER_PORT" -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          cat > ~/.ssh/config <<CFG
+          Host prod
+            HostName $SERVER_HOST
+            User $SERVER_USER
+            Port $SERVER_PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            ServerAliveInterval 30
+          CFG
+
+      - name: Upload release
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          RELEASE_ID="$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
+          echo "RELEASE_ID=$RELEASE_ID" >> "$GITHUB_ENV"
+          ssh prod "mkdir -p '$DEPLOY_PATH/releases/$RELEASE_ID' '$DEPLOY_PATH/bin'"
+          scp -q release.tar.gz prod:"$DEPLOY_PATH/releases/$RELEASE_ID/release.tar.gz"
+          scp -q deployment/deploy.sh deployment/rollback.sh prod:"$DEPLOY_PATH/bin/"
+          ssh prod "cd '$DEPLOY_PATH/releases/$RELEASE_ID' && tar -xzf release.tar.gz && rm release.tar.gz && chmod +x '$DEPLOY_PATH/bin/'*.sh"
+
+      - name: Activate release (migrate, cache, switch)
+        if: steps.check.outputs.ready == 'true'
+        run: ssh prod "PHP_BIN=\${PHP_BIN:-php} bash '$DEPLOY_PATH/bin/deploy.sh' '$DEPLOY_PATH' '$RELEASE_ID'"
+
+      - name: Health check
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          URL="${{ vars.APP_URL || 'https://opticvalley.co' }}"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$URL/up" || true)
+            home=$(curl -s -o /dev/null -w '%{http_code}' "$URL/" || true)
+            echo "Attempt $i: /up=$code /=$home"
+            if [ "$code" = "200" ] && [ "$home" = "200" ]; then echo "Site is healthy"; exit 0; fi
+            sleep 10
+          done
+          echo "::error::Health check failed — rolling back"
+          ssh prod "bash '$DEPLOY_PATH/bin/rollback.sh' '$DEPLOY_PATH'"
+          exit 1

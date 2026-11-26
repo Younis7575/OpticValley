@@ -1,0 +1,2 @@
+@php $c = ['pending' => 'bg-gold/15 text-[#8a6a35]', 'confirmed' => 'bg-brand-50 text-brand', 'processing' => 'bg-brand-50 text-brand', 'shipped' => 'bg-[#e4ecf7] text-[#2c5793]', 'delivered' => 'bg-[#e3f1e6] text-[#2f6b3f]', 'cancelled' => 'bg-sale/10 text-sale', 'refunded' => 'bg-ink/10 text-ink-2'][$status] ?? 'bg-sand text-ink'; @endphp
+<span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider {{ $c }}">{{ \App\Models\Order::STATUSES[$status] ?? $status }}</span>
