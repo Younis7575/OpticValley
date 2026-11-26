@@ -39,6 +39,7 @@ class ProductRequest extends FormRequest
             'low_stock_threshold' => 'required|integer|min:0|max:10000',
             'gender' => ['required', Rule::in(array_keys(Product::GENDERS))],
             'frame_shape' => 'nullable|string|max:40',
+            'frame_type' => ['nullable', Rule::in(array_keys(Product::FRAME_TYPES))],
             'frame_material' => 'nullable|string|max:40',
             'frame_color' => 'nullable|string|max:40',
             'frame_size' => 'nullable|string|max:40',

@@ -25,7 +25,7 @@ class ProductResource extends JsonResource
             'currency' => setting('currency_code', 'PKR'),
             'in_stock' => $this->in_stock,
             'gender' => $this->gender,
-            'frame' => ['shape' => $this->frame_shape, 'material' => $this->frame_material, 'color' => $this->frame_color, 'size' => $this->frame_size],
+            'frame' => ['shape' => $this->frame_shape, 'type' => $this->frame_type, 'material' => $this->frame_material, 'color' => $this->frame_color, 'size' => $this->frame_size],
             'prescription_enabled' => $this->prescription_enabled,
             'rating' => ['average' => $this->rating_avg, 'count' => $this->rating_count],
             'image' => $this->image_url,

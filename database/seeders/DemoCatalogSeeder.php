@@ -98,6 +98,7 @@ class DemoCatalogSeeder extends Seeder
                 'low_stock_threshold' => 5,
                 'gender' => $gender,
                 'frame_shape' => $shape,
+                'frame_type' => $shape === 'geometric' ? 'rimless' : ($metal && $shape === 'round' ? 'half-rim' : 'full-rim'),
                 'frame_material' => $material,
                 'frame_color' => $color,
                 'frame_size' => $gender === 'kids' ? 'Small (46-16-125)' : ['Medium (52-18-140)', 'Large (55-18-145)', 'Medium (50-20-140)'][$n % 3],

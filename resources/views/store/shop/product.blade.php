@@ -225,6 +225,7 @@
                     <dl class="grid grid-cols-2 gap-x-6 text-sm">
                         @foreach (array_filter(array_merge([
                             'Frame shape' => $product->frame_shape ? ucwords(str_replace('-', ' ', $product->frame_shape)) : null,
+                            'Frame type' => \App\Models\Product::FRAME_TYPES[$product->frame_type] ?? null,
                             'Frame material' => $product->frame_material ? ucwords($product->frame_material) : null,
                             'Frame colour' => $product->frame_color ? ucwords($product->frame_color) : null,
                             'Frame size' => $product->frame_size,

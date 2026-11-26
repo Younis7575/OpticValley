@@ -3,12 +3,12 @@
 @php
     $title = $category?->name ?? $brand?->name ?? (request('q') ? 'Search: '.request('q') : (request('sale') ? 'Sale' : 'Shop all eyewear'));
     $selected = fn ($k) => array_filter((array) request()->input($k, []), 'is_scalar');
-    $activeCount = collect(['brand', 'shape', 'material', 'color', 'gender'])->sum(fn ($k) => count($selected($k))) + (request('min') || request('max') ? 1 : 0) + (request('in_stock') ? 1 : 0) + (request('rx') ? 1 : 0);
+    $activeCount = collect(['brand', 'shape', 'type', 'material', 'color', 'gender'])->sum(fn ($k) => count($selected($k))) + (request('min') || request('max') ? 1 : 0) + (request('in_stock') ? 1 : 0) + (request('rx') ? 1 : 0);
 @endphp
 
 @section('title', $category?->meta_title ?: $title)
 @section('description', $category?->meta_description ?: ($category?->description ?: 'Shop '.strtolower($title).' online at OpticValley. Premium frames, precision lenses, cash on delivery across Pakistan.'))
-@if (request()->hasAny(['q', 'brand', 'shape', 'material', 'color', 'gender', 'min', 'max', 'sort', 'page']))
+@if (request()->hasAny(['q', 'brand', 'shape', 'type', 'material', 'color', 'gender', 'min', 'max', 'sort', 'page']))
     @section('canonical', url()->current())
 @endif
 
@@ -61,6 +61,7 @@
                         ['gender', 'Gender', $facets['genders']->mapWithKeys(fn ($g) => [$g => \App\Models\Product::GENDERS[$g] ?? ucfirst($g)])],
                         ['brand', 'Brand', $facets['brands']->pluck('name', 'id')],
                         ['shape', 'Frame shape', $facets['shapes']->mapWithKeys(fn ($v) => [$v => ucwords(str_replace('-', ' ', $v))])],
+                        ['type', 'Frame type', $facets['types']->mapWithKeys(fn ($v) => [$v => \App\Models\Product::FRAME_TYPES[$v] ?? ucfirst($v)])],
                         ['material', 'Frame material', $facets['materials']->mapWithKeys(fn ($v) => [$v => strtoupper($v) === 'TR90' ? 'TR90' : ucwords($v)])],
                     ] as [$key, $label, $options])
                         @if ($options->isNotEmpty())

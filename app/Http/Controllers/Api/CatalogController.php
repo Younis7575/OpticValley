@@ -38,7 +38,7 @@ class CatalogController extends Controller
         if ($s = $request->query('q')) {
             $q->where('name', 'like', '%'.str_replace(['%', '_'], ['\%', '\_'], $s).'%');
         }
-        foreach (['gender', 'frame_shape', 'frame_material'] as $f) {
+        foreach (['gender', 'frame_shape', 'frame_type', 'frame_material'] as $f) {
             if ($v = $request->query($f)) {
                 $q->where($f, $v);
             }

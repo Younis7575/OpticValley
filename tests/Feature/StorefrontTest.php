@@ -46,6 +46,8 @@ class StorefrontTest extends TestCase
         $this->get('/shop?q=cat-eye')->assertOk()->assertSee('Noor Cat-Eye');
         $this->get('/shop?gender[]=kids')->assertSee('Bubbles Kids Round')->assertDontSee('Maverick Aviator');
         $this->get('/shop?max=3000&sort=price_asc')->assertOk()->assertDontSee('Hayden Round Titanium');
+        $this->get('/shop?type[]=rimless')->assertOk()->assertSee('Atlas Geometric')->assertDontSee('Maverick Aviator');
+        $this->get('/product/atlas-geometric')->assertSee('Rimless Frame');
         $this->get('/shop?sale=1')->assertSee('Aurelio Wayfarer')->assertDontSee('Noor Cat-Eye');
     }
 

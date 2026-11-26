@@ -13,7 +13,7 @@ class Product extends Model
 {
     protected $fillable = [
         'category_id', 'brand_id', 'name', 'slug', 'sku', 'short_description', 'description',
-        'price', 'sale_price', 'stock', 'low_stock_threshold', 'gender', 'frame_shape', 'frame_material',
+        'price', 'sale_price', 'stock', 'low_stock_threshold', 'gender', 'frame_shape', 'frame_type', 'frame_material',
         'frame_color', 'frame_size', 'lens_info', 'specifications', 'prescription_enabled', 'is_featured',
         'is_best_seller', 'is_new', 'is_active', 'meta_title', 'meta_description',
     ];
@@ -31,6 +31,8 @@ class Product extends Model
     ];
 
     public const GENDERS = ['men' => 'Men', 'women' => 'Women', 'kids' => 'Kids', 'unisex' => 'Unisex'];
+
+    public const FRAME_TYPES = ['full-rim' => 'Full Frame', 'half-rim' => 'Half Frame', 'rimless' => 'Rimless Frame'];
 
     public const SHAPES = ['round', 'rectangle', 'square', 'aviator', 'cat-eye', 'oval', 'wayfarer', 'geometric'];
 

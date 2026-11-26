@@ -52,6 +52,7 @@ class ShopController extends Controller
         $facets = [
             'brands' => Brand::active()->whereIn('id', (clone $facetBase)->select('brand_id'))->orderBy('name')->get(),
             'shapes' => (clone $facetBase)->whereNotNull('frame_shape')->distinct()->orderBy('frame_shape')->pluck('frame_shape'),
+            'types' => (clone $facetBase)->whereNotNull('frame_type')->distinct()->orderBy('frame_type')->pluck('frame_type'),
             'materials' => (clone $facetBase)->whereNotNull('frame_material')->distinct()->orderBy('frame_material')->pluck('frame_material'),
             'colors' => (clone $facetBase)->whereNotNull('frame_color')->distinct()->orderBy('frame_color')->pluck('frame_color'),
             'genders' => (clone $facetBase)->distinct()->pluck('gender'),
@@ -70,7 +71,7 @@ class ShopController extends Controller
                     ->orWhereHas('category', fn ($c) => $c->where('name', 'like', $like));
             });
         }
-        foreach (['brand' => 'brand_id', 'shape' => 'frame_shape', 'material' => 'frame_material', 'color' => 'frame_color', 'gender' => 'gender'] as $param => $col) {
+        foreach (['brand' => 'brand_id', 'shape' => 'frame_shape', 'type' => 'frame_type', 'material' => 'frame_material', 'color' => 'frame_color', 'gender' => 'gender'] as $param => $col) {
             $vals = array_filter((array) $request->input($param, []), fn ($v) => is_scalar($v) && $v !== '');
             if ($vals) {
                 $query->whereIn($col, $vals);

@@ -78,6 +78,7 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <x-admin.field name="gender" type="select" label="Gender" :value="$product->gender" :options="\App\Models\Product::GENDERS"/>
                 <div><label class="a-label">Frame shape</label><input name="frame_shape" list="shapes" value="{{ old('frame_shape', $product->frame_shape) }}" class="a-input"><datalist id="shapes">@foreach (\App\Models\Product::SHAPES as $s)<option value="{{ $s }}">@endforeach</datalist></div>
+                <x-admin.field name="frame_type" type="select" label="Frame type" :value="$product->frame_type" :options="collect(['' => '— Select —'])->union(\App\Models\Product::FRAME_TYPES)"/>
                 <div><label class="a-label">Frame material</label><input name="frame_material" list="materials" value="{{ old('frame_material', $product->frame_material) }}" class="a-input"><datalist id="materials">@foreach (\App\Models\Product::MATERIALS as $s)<option value="{{ $s }}">@endforeach</datalist></div>
                 <div><label class="a-label">Frame colour</label><input name="frame_color" list="colors" value="{{ old('frame_color', $product->frame_color) }}" class="a-input"><datalist id="colors">@foreach (array_keys(\App\Support\FrameArt::COLORS) as $s)<option value="{{ $s }}">@endforeach</datalist></div>
                 <x-admin.field name="frame_size" label="Frame size" :value="$product->frame_size" placeholder="e.g. Medium (52-18-140)"/>

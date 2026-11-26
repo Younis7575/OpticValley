@@ -67,7 +67,7 @@ class AdminPanelTest extends TestCase
         $cat = Category::where('slug', 'sunglasses')->first();
         $res = $this->post('/admin/products', [
             'name' => 'Test Aviator', 'sku' => 'TST-001', 'price' => 5000, 'sale_price' => 4500, 'stock' => 10, 'low_stock_threshold' => 2,
-            'gender' => 'men', 'category_id' => $cat->id, 'is_active' => 1, 'description' => '<p onclick="x()">Nice</p><script>alert(1)</script>',
+            'gender' => 'men', 'frame_type' => 'half-rim', 'category_id' => $cat->id, 'is_active' => 1, 'description' => '<p onclick="x()">Nice</p><script>alert(1)</script>',
             'images' => [UploadedFile::fake()->image('a.jpg', 800, 600)],
             'variants' => [['name' => 'Gold', 'color_hex' => '#c9a24a', 'stock' => 4], ['name' => 'Silver', 'color_hex' => '#cccccc', 'stock' => 3]],
             'spec_keys' => ['Bridge'], 'spec_values' => ['18 mm'],
@@ -75,6 +75,7 @@ class AdminPanelTest extends TestCase
         $p = Product::where('sku', 'TST-001')->first();
         $res->assertRedirect(route('admin.products.edit', $p));
         $this->assertEquals('test-aviator', $p->slug);
+        $this->assertEquals('half-rim', $p->frame_type);
         $this->assertEquals(7, $p->stock); // sum of variants
         $this->assertEquals('<p>Nice</p>', $p->description);
         $this->assertEquals(['Bridge' => '18 mm'], $p->specifications);
