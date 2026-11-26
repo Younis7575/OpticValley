@@ -52,9 +52,9 @@
 
                 <div class="space-y-1 divide-y divide-line">
                     <div class="pb-4">
-                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="sale" value="1" @checked(request('sale')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-ink"> On sale</label>
-                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="in_stock" value="1" @checked(request('in_stock')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-ink"> In stock only</label>
-                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="rx" value="1" @checked(request('rx')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-ink"> Prescription available</label>
+                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="sale" value="1" @checked(request('sale')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-[#a77c3c]"> On sale</label>
+                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="in_stock" value="1" @checked(request('in_stock')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-[#a77c3c]"> In stock only</label>
+                        <label class="flex cursor-pointer items-center gap-3 py-1.5 text-sm"><input type="checkbox" name="rx" value="1" @checked(request('rx')) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-[#a77c3c]"> Prescription available</label>
                     </div>
 
                     @foreach ([
@@ -69,7 +69,7 @@
                                 <div x-show="open" x-collapse class="mt-3 space-y-1">
                                     @foreach ($options as $val => $text)
                                         <label class="flex cursor-pointer items-center gap-3 rounded-lg py-1.5 text-sm text-ink-2 hover:text-ink">
-                                            <input type="checkbox" name="{{ $key }}[]" value="{{ $val }}" @checked(in_array((string) $val, array_map('strval', $selected($key)), true)) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-ink"> {{ $text }}
+                                            <input type="checkbox" name="{{ $key }}[]" value="{{ $val }}" @checked(in_array((string) $val, array_map('strval', $selected($key)), true)) @change="$refs.form.requestSubmit()" class="size-4 rounded accent-[#a77c3c]"> {{ $text }}
                                         </label>
                                     @endforeach
                                 </div>

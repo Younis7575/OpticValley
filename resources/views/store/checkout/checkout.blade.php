@@ -18,7 +18,7 @@
         <div class="space-y-8">
             <fieldset class="card p-6 md:p-8">
                 <legend class="sr-only">Contact</legend>
-                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full bg-ink font-sans text-sm text-white">1</span> Contact</h2>
+                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full gold-grad font-sans text-sm text-ink">1</span> Contact</h2>
                 <div class="mt-6 grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2"><label class="label" for="name">Full name</label><input id="name" name="name" value="{{ old('name', $address->name ?? $u?->name) }}" required autocomplete="name" class="field">@error('name')<p class="mt-1 text-xs text-sale">{{ $message }}</p>@enderror</div>
                     <div><label class="label" for="email">Email</label><input id="email" type="email" name="email" value="{{ old('email', $u?->email) }}" required autocomplete="email" class="field">@error('email')<p class="mt-1 text-xs text-sale">{{ $message }}</p>@enderror</div>
@@ -27,7 +27,7 @@
             </fieldset>
 
             <fieldset class="card p-6 md:p-8">
-                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full bg-ink font-sans text-sm text-white">2</span> Delivery address</h2>
+                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full gold-grad font-sans text-sm text-ink">2</span> Delivery address</h2>
                 <div class="mt-6 grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2"><label class="label" for="line1">Address</label><input id="line1" name="line1" value="{{ old('line1', $address->line1 ?? '') }}" required placeholder="House #, street, area" autocomplete="address-line1" class="field">@error('line1')<p class="mt-1 text-xs text-sale">{{ $message }}</p>@enderror</div>
                     <div class="sm:col-span-2"><label class="label" for="line2">Apartment, landmark (optional)</label><input id="line2" name="line2" value="{{ old('line2', $address->line2 ?? '') }}" autocomplete="address-line2" class="field"></div>
@@ -47,7 +47,7 @@
             </fieldset>
 
             <fieldset class="card p-6 md:p-8">
-                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full bg-ink font-sans text-sm text-white">3</span> Payment</h2>
+                <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-8 place-items-center rounded-full gold-grad font-sans text-sm text-ink">3</span> Payment</h2>
                 <div class="mt-6 space-y-3" x-data="{ pm: '{{ old('payment_method', array_key_first($methods)) }}' }">
                     @foreach ($methods as $key => [$label, $desc])
                         <label class="flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition" :class="pm === '{{ $key }}' ? 'border-ink bg-sand/40' : 'border-line hover:border-ink/40'">

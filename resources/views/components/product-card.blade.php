@@ -11,7 +11,7 @@
         </a>
         <div class="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">
             @if ($product->hasDiscount())
-                <span class="rounded-full bg-sale px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">-{{ $product->discount_percent }}%</span>
+                <span class="rounded-full bg-onyx px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-light">-{{ $product->discount_percent }}%</span>
             @endif
             @if ($product->is_new)
                 <span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink shadow-sm">New</span>

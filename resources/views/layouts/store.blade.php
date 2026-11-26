@@ -42,9 +42,9 @@
 
     {{-- Announcement --}}
     @if (setting('announcement'))
-        <div class="overflow-hidden bg-ink text-[11px] font-semibold uppercase tracking-[0.2em] text-white/85">
+        <div class="overflow-hidden bg-onyx text-[11px] font-semibold uppercase tracking-[0.24em] text-gold-light/90">
             <div class="flex w-max animate-marquee gap-16 py-2.5">
-                @for ($i = 0; $i < 8; $i++)<span class="flex items-center gap-16">{{ setting('announcement') }} <span class="text-gold">✦</span></span>@endfor
+                @for ($i = 0; $i < 8; $i++)<span class="flex items-center gap-16">{{ setting('announcement') }} <span class="text-gold">◆</span></span>@endfor
             </div>
         </div>
     @endif
@@ -97,7 +97,7 @@
                 <a href="{{ route('account.wishlist') }}" class="hidden size-10 place-items-center rounded-full hover:bg-sand sm:grid" aria-label="Wishlist"><x-icon name="heart"/></a>
                 <a href="{{ route('cart.index') }}" class="relative grid size-10 place-items-center rounded-full hover:bg-sand" aria-label="Cart">
                     <x-icon name="bag"/>
-                    <span x-cloak x-show="$store.cart.count > 0" x-text="$store.cart.count" class="absolute right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full bg-brand px-1 text-[10px] font-bold leading-[18px] text-white"></span>
+                    <span x-cloak x-show="$store.cart.count > 0" x-text="$store.cart.count" class="absolute right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full gold-grad px-1 text-[10px] font-bold leading-[18px] text-ink"></span>
                 </a>
             </div>
         </div>
@@ -159,7 +159,7 @@
         <div class="container-x grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
             @foreach ([['truck', 'Nationwide delivery', setting('shipping_note', 'Delivery in 2–5 working days.')], ['shield', 'Optician checked', 'Every lens verified before dispatch.'], ['refresh', '7-day returns', 'Easy returns on unused frames.'], ['tag', 'Cash on Delivery', 'Pay at your doorstep, anywhere in Pakistan.']] as [$ic, $t, $d])
                 <div class="flex items-start gap-3.5">
-                    <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand"><x-icon :name="$ic"/></span>
+                    <span class="grid size-11 shrink-0 place-items-center rounded-full border border-[#b8914f]/30 bg-brand-50 text-brand"><x-icon :name="$ic"/></span>
                     <div><p class="text-sm font-bold">{{ $t }}</p><p class="mt-0.5 text-xs leading-relaxed text-muted">{{ $d }}</p></div>
                 </div>
             @endforeach
@@ -167,7 +167,7 @@
     </section>
 
     {{-- Footer --}}
-    <footer class="bg-ink text-white/70">
+    <footer class="relative bg-onyx text-white/65"><div class="h-px gold-grad"></div>
         <div class="container-x grid gap-12 py-16 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr]">
             <div>
                 <x-logo light full class="-ml-2"/>
@@ -175,26 +175,26 @@
                 <div class="mt-6 flex gap-2">
                     @foreach (['instagram', 'facebook', 'tiktok', 'youtube'] as $s)
                         @if (setting('social_'.$s))
-                            <a href="{{ setting('social_'.$s) }}" target="_blank" rel="noopener" class="grid size-10 place-items-center rounded-full border border-white/15 transition hover:border-white hover:text-white" aria-label="{{ ucfirst($s) }}"><x-icon :name="$s" class="size-[18px]"/></a>
+                            <a href="{{ setting('social_'.$s) }}" target="_blank" rel="noopener" class="grid size-10 place-items-center rounded-full border border-white/15 transition hover:border-[#b8914f] hover:text-gold-light" aria-label="{{ ucfirst($s) }}"><x-icon :name="$s" class="size-[18px]"/></a>
                         @endif
                     @endforeach
                 </div>
             </div>
             <div>
-                <p class="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white">Shop</p>
+                <p class="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-gold-light">Shop</p>
                 <ul class="space-y-2.5 text-sm">@foreach ($menus['footer_shop'] ?? [] as $m)<li><a href="{{ $m->url }}" class="link-u hover:text-white">{{ $m->label }}</a></li>@endforeach</ul>
             </div>
             <div>
-                <p class="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white">Help</p>
+                <p class="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-gold-light">Help</p>
                 <ul class="space-y-2.5 text-sm">@foreach ($menus['footer_help'] ?? [] as $m)<li><a href="{{ $m->url }}" class="link-u hover:text-white">{{ $m->label }}</a></li>@endforeach</ul>
             </div>
             <div>
-                <p class="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white">Join the list</p>
+                <p class="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-gold-light">Join the list</p>
                 <p class="text-sm">New drops, early sale access and eye-care tips. No spam.</p>
                 <form action="{{ route('newsletter') }}" method="POST" class="mt-4 flex rounded-full border border-white/20 p-1 focus-within:border-white">
                     @csrf
                     <input type="email" name="email" required placeholder="Your email" class="w-full bg-transparent px-4 text-sm text-white outline-none placeholder:text-white/40" aria-label="Email">
-                    <button class="rounded-full bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-ink transition hover:bg-gold hover:text-white">Join</button>
+                    <button class="gold-grad rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-ink transition hover:brightness-110">Join</button>
                 </form>
                 <ul class="mt-6 space-y-2 text-sm">
                     <li class="flex gap-2.5"><x-icon name="pin" class="mt-0.5 size-4 shrink-0"/> {{ setting('store_address') }}</li>
@@ -227,7 +227,7 @@
     <div x-data="toasts" class="pointer-events-none fixed inset-x-0 top-20 z-[60] flex flex-col items-center gap-2 px-4">
         <template x-for="t in items" :key="t.id">
             <div x-transition:enter="transition duration-300" x-transition:enter-start="-translate-y-3 opacity-0" class="pointer-events-auto flex items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold shadow-xl"
-                 :class="t.type === 'error' ? 'bg-sale text-white' : 'bg-ink text-white'">
+                 :class="t.type === 'error' ? 'bg-sale text-white' : 'bg-onyx text-white ring-1 ring-[#b8914f]/40'">
                 <span x-text="t.message"></span>
                 <a x-show="t.type !== 'error' && t.message.includes('cart')" href="{{ route('cart.index') }}" class="underline underline-offset-4">View cart</a>
             </div>

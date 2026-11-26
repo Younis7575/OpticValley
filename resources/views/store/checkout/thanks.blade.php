@@ -5,7 +5,7 @@
 @section('content')
 <section class="container-x max-w-3xl py-16 md:py-24">
     <div class="text-center">
-        <span class="mx-auto grid size-20 place-items-center rounded-full bg-brand text-white shadow-xl shadow-brand/30 animate-rise"><x-icon name="check" class="size-9"/></span>
+        <span class="mx-auto grid size-20 place-items-center rounded-full gold-grad text-ink shadow-xl shadow-[#a77c3c]/30 animate-rise"><x-icon name="check" class="size-9"/></span>
         <p class="eyebrow mt-8">Order confirmed</p>
         <h1 class="mt-2 text-4xl md:text-5xl">Thank you, {{ \Illuminate\Support\Str::before($order->customer_name, ' ') }}!</h1>
         <p class="mx-auto mt-4 max-w-md text-muted">Your order <strong class="text-ink">{{ $order->order_number }}</strong> has been placed. We'll confirm it by phone or WhatsApp shortly{{ $order->customer_email ? ', and a summary is on its way to '.$order->customer_email : '' }}.</p>

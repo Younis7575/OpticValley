@@ -135,7 +135,7 @@
                         <div class="mt-4 space-y-2">
                             <template x-for="l in lenses" :key="l.id">
                                 <label class="flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition" :class="lensId === l.id ? 'border-ink bg-white' : 'border-line hover:border-ink/40'">
-                                    <input type="radio" name="lens_id" :value="l.id" x-model.number="lensId" class="mt-1 accent-ink" :disabled="mode !== 'rx'">
+                                    <input type="radio" name="lens_id" :value="l.id" x-model.number="lensId" class="mt-1 accent-[#a77c3c]" :disabled="mode !== 'rx'">
                                     <span class="flex-1"><span class="block text-sm font-semibold" x-text="l.name"></span><span class="block text-xs text-muted" x-text="l.desc"></span></span>
                                     <span class="text-sm font-bold" x-text="l.price > 0 ? '+ ' + fmt(l.price) : 'Included'"></span>
                                 </label>

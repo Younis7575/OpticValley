@@ -37,8 +37,8 @@ Alpine.data('revenueChart', (labels, revenue, orders) => ({
             data: {
                 labels,
                 datasets: [
-                    { type: 'line', label: 'Revenue', data: revenue, borderColor: '#0e4d5a', backgroundColor: 'rgba(14,77,90,.08)', fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
-                    { type: 'bar', label: 'Orders', data: orders, backgroundColor: 'rgba(184,145,90,.35)', borderRadius: 6, yAxisID: 'y1' },
+                    { type: 'line', label: 'Revenue', data: revenue, borderColor: '#a77c3c', backgroundColor: 'rgba(184,145,79,.12)', fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+                    { type: 'bar', label: 'Orders', data: orders, backgroundColor: 'rgba(14,13,12,.14)', borderRadius: 6, yAxisID: 'y1' },
                 ],
             },
             options: {

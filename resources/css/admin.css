@@ -7,16 +7,16 @@
 @theme {
     --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Fraunces', ui-serif, Georgia, serif;
-    --color-ink: #13171c;
+    --color-ink: #0e0d0c;
     --color-ink-2: #2a3038;
-    --color-paper: #f6f5f2;
+    --color-paper: #f7f4ee;
     --color-sand: #f2ede5;
-    --color-line: #e7e3dc;
+    --color-line: #e8e0d2;
     --color-muted: #6b7178;
-    --color-brand: #0e4d5a;
-    --color-brand-600: #0a3c47;
-    --color-brand-50: #e7f0f1;
-    --color-gold: #b8915a;
+    --color-brand: #8f6a2f;
+    --color-brand-600: #6f5122;
+    --color-brand-50: #f6eedf;
+    --color-gold: #b8914f;
     --color-sale: #b4362d;
 }
 
