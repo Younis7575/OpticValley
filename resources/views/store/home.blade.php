@@ -6,6 +6,32 @@
         <section x-data="slider({{ $heroes->count() }})" @mouseenter="stop" @mouseleave="play" class="relative overflow-hidden">
             <div class="relative min-h-[820px] sm:min-h-[760px] lg:min-h-[680px]">
                 @foreach ($heroes as $i => $hero)
+                    @if ($hero->theme === 'photo')
+                    <div x-show="i === {{ $i }}" x-transition:enter="transition duration-[900ms] ease-out" x-transition:enter-start="opacity-0" x-transition:leave="transition duration-500 absolute inset-0" x-transition:leave-end="opacity-0"
+                         class="absolute inset-0 overflow-hidden bg-onyx text-white" @if ($i) x-cloak @endif>
+                        <img src="{{ $hero->image_url }}" alt="{{ $hero->title }}" class="absolute inset-0 size-full scale-105 object-cover object-center animate-[heroZoom_14s_ease-out_both]" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#0e0d0c]/90 via-[#0e0d0c]/60 to-[#0e0d0c]/5"></div>
+                        <div class="absolute inset-0 bg-[#0e0d0c]/45 lg:hidden"></div>
+                        <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0e0d0c]/70 to-transparent"></div>
+                        <div class="container-x relative flex h-full min-h-[820px] items-center pb-20 pt-10 sm:min-h-[760px] lg:min-h-[680px]">
+                            <div class="max-w-xl" x-show="i === {{ $i }}" x-transition:enter="transition duration-700 delay-200" x-transition:enter-start="opacity-0 translate-y-6">
+                                @if ($hero->eyebrow)<p class="eyebrow mb-5 !text-[#e8d3a2]">{{ $hero->eyebrow }}</p>@endif
+                                <h1 class="text-[2.6rem] leading-[1.04] sm:text-6xl lg:text-[4.6rem]">{{ $hero->title }}</h1>
+                                <div class="gold-rule mt-7"></div>
+                                @if ($hero->subtitle)<p class="mt-6 max-w-md text-base leading-relaxed text-white/75">{{ $hero->subtitle }}</p>@endif
+                                <div class="mt-9 flex flex-wrap items-center gap-3">
+                                    @if ($hero->link)<a href="{{ $hero->link }}" class="btn-brand px-8 py-4">{{ $hero->button_text ?: 'Shop now' }} <x-icon name="arrow-right" class="size-4"/></a>@endif
+                                    <a href="{{ route('shop', ['rx' => 1]) }}" class="btn border border-white/30 px-6 py-4 text-white backdrop-blur hover:border-[#e8d3a2] hover:text-[#e8d3a2]"><x-icon name="eye" class="size-4"/> Prescription ready</a>
+                                </div>
+                                <div class="mt-10 flex flex-wrap items-center gap-6 text-xs font-semibold text-white/70">
+                                    <span class="flex items-center gap-2"><x-icon name="truck" class="size-4"/> Free delivery over {{ money(setting('free_shipping_threshold', 5000)) }}</span>
+                                    <span class="flex items-center gap-2"><x-icon name="shield" class="size-4"/> Optician checked</span>
+                                    <span class="flex items-center gap-2"><x-icon name="pin" class="size-4"/> Visit us in Gulberg III</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @else
                     @php $dark = $hero->theme === 'dark'; @endphp
                     <div x-show="i === {{ $i }}" x-transition:enter="transition duration-[900ms] ease-out" x-transition:enter-start="opacity-0" x-transition:leave="transition duration-500 absolute inset-0" x-transition:leave-end="opacity-0"
                          class="absolute inset-0 {{ $dark ? 'bg-onyx text-white' : 'bg-white text-ink' }}" @if ($i) x-cloak @endif>
@@ -43,6 +69,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 @endforeach
             </div>
             @if ($heroes->count() > 1)

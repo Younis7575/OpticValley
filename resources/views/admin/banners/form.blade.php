@@ -4,7 +4,7 @@
 <form method="POST" enctype="multipart/form-data" action="{{ $banner->exists ? route('admin.banners.update', $banner) : route('admin.banners.store') }}" class="grid max-w-5xl gap-6 lg:grid-cols-[1fr_320px]">
     @csrf @if ($banner->exists) @method('PUT') @endif
     <div class="a-card space-y-4 p-6">
-        <div class="grid gap-4 sm:grid-cols-2"><x-admin.field name="position" type="select" label="Position" :value="$banner->position" :options="\App\Models\Banner::POSITIONS"/><x-admin.field name="theme" type="select" label="Colour theme" :value="$banner->theme" :options="['light' => 'Light', 'dark' => 'Dark']"/></div>
+        <div class="grid gap-4 sm:grid-cols-2"><x-admin.field name="position" type="select" label="Position" :value="$banner->position" :options="\App\Models\Banner::POSITIONS"/><x-admin.field name="theme" type="select" label="Colour theme" :value="$banner->theme" :options="['photo' => 'Full-width photo (hero)', 'light' => 'Light', 'dark' => 'Dark']"/></div>
         <x-admin.field name="eyebrow" label="Small heading" :value="$banner->eyebrow" placeholder="e.g. New season"/>
         <x-admin.field name="title" label="Title" :value="$banner->title" required/>
         <x-admin.field name="subtitle" type="textarea" rows="2" label="Subtitle" :value="$banner->subtitle"/>

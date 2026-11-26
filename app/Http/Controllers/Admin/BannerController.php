@@ -59,7 +59,7 @@ class BannerController extends Controller
             'subtitle' => 'nullable|string|max:500',
             'button_text' => 'nullable|string|max:40',
             'link' => ['nullable', 'string', 'max:255', 'regex:/^(\/|https?:\/\/)/'],
-            'theme' => 'required|in:light,dark',
+            'theme' => 'required|in:light,dark,photo',
             'sort_order' => 'nullable|integer|min:0',
             'image' => 'nullable|image|max:4096',
         ], ['link.regex' => 'Links must start with / or https://']);
