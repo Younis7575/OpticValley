@@ -24,11 +24,13 @@
     <meta property="og:image" content="{{ $ogImage }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#faf8f5">
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('images/favicon-192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script type="application/ld+json">{!! json_encode([
         '@context' => 'https://schema.org', '@type' => 'Organization', 'name' => $storeName, 'url' => url('/'),
-        'logo' => asset('favicon.svg'), 'email' => setting('store_email'), 'telephone' => setting('store_phone'),
+        'logo' => asset('images/logo.png'), 'email' => setting('store_email'), 'telephone' => setting('store_phone'),
         'address' => ['@type' => 'PostalAddress', 'streetAddress' => setting('store_address'), 'addressCountry' => 'PK'],
         'sameAs' => array_values(array_filter([setting('social_instagram'), setting('social_facebook'), setting('social_tiktok'), setting('social_youtube')])),
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -168,7 +170,7 @@
     <footer class="bg-ink text-white/70">
         <div class="container-x grid gap-12 py-16 lg:grid-cols-[1.3fr_1fr_1fr_1.3fr]">
             <div>
-                <x-logo light/>
+                <x-logo light full class="-ml-2"/>
                 <p class="mt-5 max-w-xs text-sm leading-relaxed">{{ setting('footer_about') }}</p>
                 <div class="mt-6 flex gap-2">
                     @foreach (['instagram', 'facebook', 'tiktok', 'youtube'] as $s)

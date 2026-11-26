@@ -15,7 +15,7 @@
 <div class="wrap">
     <p class="noprint" style="text-align:right"><button onclick="window.print()" style="padding:8px 16px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer">Print / Save PDF</button></p>
     <div class="row">
-        <div><div class="brand">Optic<i>Valley</i></div><p class="muted" style="margin:6px 0 0;max-width:260px">{{ setting('store_address') }}<br>{{ setting('store_phone') }} · {{ setting('store_email') }}</p></div>
+        <div><img src="{{ asset('images/logo.png') }}" alt="OpticValley" style="height:70px"><p class="muted" style="margin:6px 0 0;max-width:260px">{{ setting('store_address') }}<br>{{ setting('store_phone') }} · {{ setting('store_email') }}</p></div>
         <div style="text-align:right"><h1>Invoice</h1><p class="muted" style="margin:6px 0 0">#{{ $order->order_number }}<br>{{ $order->created_at->format('d M Y') }}</p></div>
     </div>
     <div class="row box">

@@ -3,17 +3,16 @@
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
     <title>Admin sign in · {{ setting('store_name', 'OpticValley') }}</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('images/favicon-192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
 </head>
 <body class="grid min-h-screen lg:grid-cols-2">
     <div class="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div class="pointer-events-none absolute -right-40 -top-40 size-[600px] rounded-full border border-white/10"></div>
         <div class="pointer-events-none absolute -bottom-32 -left-20 size-[420px] rounded-full bg-white/5"></div>
-        <div class="relative flex items-center gap-2.5">
-            <svg viewBox="0 0 64 40" class="h-7 text-white" fill="none" stroke="currentColor" stroke-width="4"><circle cx="16" cy="22" r="11"/><circle cx="48" cy="22" r="11"/><path d="M27 20q5-5 10 0"/><circle cx="54" cy="7" r="3.5" fill="#b8915a" stroke="none"/></svg>
-            <span class="font-display text-2xl">Optic<span class="italic text-gold">Valley</span></span>
-        </div>
+        <div class="relative"><img src="{{ asset('images/logo-light.png') }}" alt="OpticValley" class="h-24 w-auto"></div>
         <div class="relative">
             <p class="font-display text-5xl leading-tight">Run your store<br>with <em class="text-gold">clarity</em>.</p>
             <p class="mt-4 max-w-sm text-white/60">Orders, inventory, customers and content — all in one place.</p>

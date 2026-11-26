@@ -1,8 +1,12 @@
-@props(['light' => false])
+@props(['light' => false, 'full' => false])
 <a href="{{ route('home') }}" {{ $attributes->merge(['class' => 'group inline-flex items-center gap-2.5']) }} aria-label="{{ setting('store_name', 'OpticValley') }} home">
-    <svg viewBox="0 0 64 40" class="h-7 w-auto {{ $light ? 'text-white' : 'text-ink' }}" fill="none" stroke="currentColor" stroke-width="4">
-        <circle cx="16" cy="22" r="11"/><circle cx="48" cy="22" r="11"/><path d="M27 20q5-5 10 0"/>
-        <circle cx="54" cy="7" r="3.5" fill="#b8915a" stroke="none"/>
-    </svg>
-    <span class="font-display text-[1.45rem] leading-none tracking-tight {{ $light ? 'text-white' : 'text-ink' }}">Optic<span class="italic text-gold">Valley</span></span>
+    @if ($full)
+        <img src="{{ asset($light ? 'images/logo-light.png' : 'images/logo.png') }}" alt="{{ setting('store_name', 'OpticValley') }}" class="h-28 w-auto" width="720" height="504" loading="lazy">
+    @else
+        <img src="{{ asset($light ? 'images/logo-mark-light.png' : 'images/logo-mark.png') }}" alt="" class="h-8 w-auto sm:h-9" width="480" height="195">
+        <span class="flex flex-col leading-none">
+            <span class="font-display text-[1.15rem] tracking-[0.28em] {{ $light ? 'text-white' : 'text-ink' }}">OPTIC</span>
+            <span class="mt-0.5 text-[0.55rem] font-semibold tracking-[0.5em] text-gold">VALLEY</span>
+        </span>
+    @endif
 </a>

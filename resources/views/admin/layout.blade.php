@@ -46,7 +46,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'Dashboard') · {{ setting('store_name', 'OpticValley') }} Admin</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('images/favicon-192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
     <script>window.__flash = @json(collect(['success', 'error'])->filter(fn ($t) => session($t))->map(fn ($t) => ['type' => $t, 'message' => session($t)])->values());</script>
 </head>
@@ -56,8 +58,7 @@
     <div x-show="side" x-cloak @click="side = false" class="fixed inset-0 z-30 bg-ink/40 lg:hidden"></div>
     <aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-ink text-white/70 transition lg:sticky lg:top-0 lg:h-screen lg:translate-x-0" :class="side && '!translate-x-0'">
         <div class="flex h-16 items-center gap-2.5 px-5">
-            <svg viewBox="0 0 64 40" class="h-6 text-white" fill="none" stroke="currentColor" stroke-width="4"><circle cx="16" cy="22" r="11"/><circle cx="48" cy="22" r="11"/><path d="M27 20q5-5 10 0"/><circle cx="54" cy="7" r="3.5" fill="#b8915a" stroke="none"/></svg>
-            <span class="font-display text-lg text-white">Optic<span class="italic text-gold">Valley</span></span>
+            <img src="{{ asset('images/logo-mark-light.png') }}" alt="" class="h-7 w-auto"><span class="font-display text-sm tracking-[0.22em] text-white">OPTIC <span class="text-gold">VALLEY</span></span>
             <span class="ml-auto rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">Admin</span>
         </div>
         <nav class="flex-1 space-y-5 overflow-y-auto px-3 py-4 text-sm">
