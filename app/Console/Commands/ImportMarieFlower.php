@@ -76,7 +76,7 @@ class ImportMarieFlower extends Command
             $i = 0;
             foreach (self::FRAMES as $code => [$title, $shape, $colour, $gender]) {
                 $kidsFrame = $gender === 'kids';
-                File::copy("$src/$code.jpg", public_path("$dest/$code.jpg"));
+                File::copy("$src/$code.webp", public_path("$dest/$code.webp"));
                 $name = "Marie Flower $code — $title";
                 $p = Product::updateOrCreate(['sku' => "MF-$code"], [
                     'name' => $name,
@@ -106,17 +106,17 @@ class ImportMarieFlower extends Command
                 ]);
                 $p->categories()->sync(array_filter([$rx]));
                 $p->images()->delete();
-                $p->images()->create(['path' => "$dest/$code.jpg", 'alt' => "$name eyeglasses frame", 'sort_order' => 0]);
+                $p->images()->create(['path' => "$dest/$code.webp", 'alt' => "$name eyeglasses frame", 'sort_order' => 0]);
                 $i++;
             }
 
             // Fresh hero / promo artwork from the real collection.
             $heroes = Banner::where('position', 'hero')->orderBy('sort_order')->get();
             foreach ($heroes as $k => $b) {
-                $b->update(['image' => "$dest/".(['1802', '3021'][$k % 2]).'.jpg']);
+                $b->update(['image' => "$dest/".(['1802', '3021'][$k % 2]).'.webp']);
             }
             foreach (Banner::where('position', 'promo')->orderBy('sort_order')->get() as $k => $b) {
-                $b->update(['image' => "$dest/".(['9513', '8003', 'A021'][$k % 3]).'.jpg']);
+                $b->update(['image' => "$dest/".(['9513', '8003', 'A021'][$k % 3]).'.webp']);
             }
         });
 
