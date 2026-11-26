@@ -1,6 +1,6 @@
 <div class="flex gap-4">
-    <a href="{{ route('product.show', $line->product) }}" class="relative w-24 shrink-0 overflow-hidden rounded-2xl bg-sand md:w-28">
-        <img src="{{ $line->product->image_url }}" alt="{{ $line->product->name }}" class="aspect-square size-full object-cover">
+    <a href="{{ route('product.show', $line->product) }}" class="relative w-24 shrink-0 overflow-hidden rounded-2xl bg-white ring-1 ring-line md:w-28">
+        <img src="{{ $line->product->image_url }}" alt="{{ $line->product->name }}" class="aspect-square size-full object-contain p-1">
         @isset($badge)<span class="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-ink text-[11px] font-bold text-white">{{ $line->qty }}</span>@endisset
     </a>
     <div class="min-w-0 flex-1 text-sm">

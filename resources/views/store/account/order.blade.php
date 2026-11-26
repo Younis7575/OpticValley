@@ -13,7 +13,7 @@
         <div class="card divide-y divide-line">
             @foreach ($order->items as $item)
                 <div class="flex gap-4 p-5">
-                    <div class="size-20 shrink-0 overflow-hidden rounded-2xl bg-sand">@if ($item->product)<img src="{{ $item->product->image_url }}" alt="" class="size-full object-cover">@endif</div>
+                    <div class="size-20 shrink-0 overflow-hidden rounded-2xl bg-white ring-1 ring-line">@if ($item->product)<img src="{{ $item->product->image_url }}" alt="" class="size-full object-contain p-1">@endif</div>
                     <div class="flex-1 text-sm">
                         <p class="font-semibold">{{ $item->name }}</p>
                         <p class="text-xs text-muted">{{ collect([$item->variant_name, $item->lens_name])->filter()->join(' · ') }} · Qty {{ $item->quantity }}</p>

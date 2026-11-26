@@ -1,12 +1,12 @@
 @props(['product', 'wishlisted' => false])
 @php $img2 = $product->images->get(1); @endphp
 <article class="group relative flex flex-col">
-    <div class="relative overflow-hidden rounded-[1.4rem] bg-sand">
+    <div class="relative overflow-hidden rounded-[1.4rem] bg-white ring-1 ring-line transition duration-500 group-hover:ring-[#b8914f]/60 group-hover:shadow-[0_24px_50px_-28px_rgba(143,106,47,.45)]">
         <a href="{{ route('product.show', $product) }}" class="block aspect-[4/3.4]">
             <img src="{{ $product->image_url }}" alt="{{ $product->images->first()?->alt ?? $product->name }}" loading="lazy" decoding="async"
-                 class="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.04] {{ $img2 ? 'group-hover:opacity-0' : '' }}">
+                 class="absolute inset-0 size-full object-contain p-3 transition duration-700 ease-out group-hover:scale-[1.06] {{ $img2 ? 'group-hover:opacity-0' : '' }}">
             @if ($img2)
-                <img src="{{ $img2->url }}" alt="{{ $img2->alt ?? $product->name }}" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover opacity-0 transition duration-700 group-hover:opacity-100">
+                <img src="{{ $img2->url }}" alt="{{ $img2->alt ?? $product->name }}" loading="lazy" decoding="async" class="absolute inset-0 size-full object-contain p-3 opacity-0 transition duration-700 group-hover:opacity-100">
             @endif
         </a>
         <div class="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">

@@ -63,17 +63,17 @@
             @if ($product->images->count() > 1)
                 <div class="no-scrollbar flex gap-3 overflow-x-auto md:w-20 md:flex-col">
                     @foreach ($product->images as $i => $image)
-                        <button type="button" @click="img = {{ $i }}" class="aspect-square w-20 shrink-0 overflow-hidden rounded-2xl border-2 bg-sand transition" :class="img === {{ $i }} ? 'border-ink' : 'border-transparent opacity-70 hover:opacity-100'" aria-label="View image {{ $i + 1 }}">
-                            <img src="{{ $image->url }}" alt="" class="size-full object-cover">
+                        <button type="button" @click="img = {{ $i }}" class="aspect-square w-20 shrink-0 overflow-hidden rounded-2xl border-2 bg-white transition" :class="img === {{ $i }} ? 'border-ink' : 'border-transparent opacity-70 hover:opacity-100'" aria-label="View image {{ $i + 1 }}">
+                            <img src="{{ $image->url }}" alt="" class="size-full object-contain p-1">
                         </button>
                     @endforeach
                 </div>
             @endif
-            <div class="relative flex-1 overflow-hidden rounded-[2rem] bg-sand" x-data="{ zoom: false, x: 50, y: 50 }"
+            <div class="relative flex-1 overflow-hidden rounded-[2rem] bg-white ring-1 ring-line" x-data="{ zoom: false, x: 50, y: 50 }"
                  @mousemove="const r = $el.getBoundingClientRect(); x = (($event.clientX - r.left) / r.width) * 100; y = (($event.clientY - r.top) / r.height) * 100" @mouseenter="zoom = true" @mouseleave="zoom = false">
                 @foreach ($product->images as $i => $image)
                     <img x-show="img === {{ $i }}" @if ($i) x-cloak @endif src="{{ $image->url }}" alt="{{ $image->alt ?? $product->name }}"
-                         class="aspect-[4/3.3] w-full object-cover transition-transform duration-300" :style="zoom ? `transform: scale(1.8); transform-origin: ${x}% ${y}%` : ''" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
+                         class="aspect-[4/3.3] w-full object-contain p-4 transition-transform duration-300" :style="zoom ? `transform: scale(1.8); transform-origin: ${x}% ${y}%` : ''" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
                 @endforeach
                 @if ($product->images->isEmpty())<img src="{{ asset('images/placeholder.svg') }}" alt="" class="aspect-[4/3.3] w-full object-cover">@endif
                 <div class="pointer-events-none absolute left-5 top-5 flex gap-2">

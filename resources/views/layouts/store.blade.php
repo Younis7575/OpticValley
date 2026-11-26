@@ -23,7 +23,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ $ogImage }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="theme-color" content="#faf8f5">
+    <meta name="theme-color" content="#ffffff">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" href="{{ asset('images/favicon-192.png') }}" type="image/png">
     <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
@@ -50,7 +50,7 @@
     @endif
 
     {{-- Header --}}
-    <header class="sticky top-0 z-40 border-b border-line/70 bg-paper/85 backdrop-blur-xl" x-data="{ scrolled: false }" @scroll.window="scrolled = window.scrollY > 10" :class="scrolled && 'shadow-[0_8px_30px_-12px_rgba(19,23,28,.12)]'">
+    <header class="sticky top-0 z-40 border-b border-line/70 bg-white/90 backdrop-blur-xl" x-data="{ scrolled: false }" @scroll.window="scrolled = window.scrollY > 10" :class="scrolled && 'shadow-[0_8px_30px_-12px_rgba(19,23,28,.12)]'">
         <div class="container-x flex h-[72px] items-center gap-4">
             <button class="-ml-2 grid size-10 place-items-center rounded-full hover:bg-sand lg:hidden" @click="menu = true" aria-label="Open menu"><x-icon name="menu"/></button>
             <x-logo class="max-lg:mx-auto"/>

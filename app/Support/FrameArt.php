@@ -22,6 +22,10 @@ class FrameArt
         'ivory' => ['#d9d2c5', '#f4efe6'],
         'gunmetal' => ['#3b4048', '#6e7680'],
         'blue' => ['#1d4e89', '#4f86c6'],
+        'brown' => ['#4a2a16', '#8a5a36'],
+        'grey' => ['#5d6168', '#a9adb3'],
+        'honey' => ['#8a5a22', '#c98d45'],
+        'clear' => ['#c6ccd3', '#eef1f4'],
     ];
 
     public const TINTS = [

@@ -8,10 +8,10 @@
                 @foreach ($heroes as $i => $hero)
                     @php $dark = $hero->theme === 'dark'; @endphp
                     <div x-show="i === {{ $i }}" x-transition:enter="transition duration-[900ms] ease-out" x-transition:enter-start="opacity-0" x-transition:leave="transition duration-500 absolute inset-0" x-transition:leave-end="opacity-0"
-                         class="absolute inset-0 {{ $dark ? 'bg-onyx text-white' : 'bg-sand text-ink' }}" @if ($i) x-cloak @endif>
+                         class="absolute inset-0 {{ $dark ? 'bg-onyx text-white' : 'bg-white text-ink' }}" @if ($i) x-cloak @endif>
                         {{-- decorative rings --}}
                         <div class="pointer-events-none absolute -right-40 top-1/2 size-[780px] -translate-y-1/2 rounded-full border {{ $dark ? 'border-[#b8914f]/25' : 'border-[#b8914f]/20' }}"></div>
-                        <div class="pointer-events-none absolute -right-10 top-1/2 size-[520px] -translate-y-1/2 rounded-full {{ $dark ? 'bg-white/[.04]' : 'bg-white/60' }}"></div>
+                        <div class="pointer-events-none absolute -right-10 top-1/2 size-[520px] -translate-y-1/2 rounded-full {{ $dark ? 'bg-white/[.04]' : 'bg-sand' }}"></div>
 
                         <div class="container-x relative grid h-full min-h-[820px] content-center items-center gap-8 pb-20 pt-10 sm:min-h-[760px] lg:min-h-[680px] lg:grid-cols-[1.05fr_1fr] lg:py-14">
                             <div class="relative z-10 max-w-xl" x-show="i === {{ $i }}" x-transition:enter="transition duration-700 delay-200" x-transition:enter-start="opacity-0 translate-y-6">
@@ -32,7 +32,7 @@
                             </div>
                             <div class="relative max-lg:-mt-6">
                                 <div class="relative mx-auto aspect-[4/3] w-full max-w-[640px] overflow-hidden rounded-[2.5rem] shadow-[0_40px_80px_-30px_rgba(19,23,28,.35)]">
-                                    <img src="{{ $hero->image_url }}" alt="{{ $hero->title }}" class="size-full object-cover" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
+                                    <img src="{{ $hero->image_url }}" alt="{{ $hero->title }}" class="size-full bg-white object-contain p-6" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
                                 </div>
                                 @if ($rating['count'] > 0)
                                 <div class="absolute -bottom-5 left-2 hidden items-center gap-3 rounded-2xl bg-white px-4 py-3 text-ink shadow-xl sm:flex lg:-left-8">
@@ -65,20 +65,21 @@
     <section class="container-x py-20 md:py-24">
         <x-section-head eyebrow="Find your fit" title="Shop by <em class='italic text-gold-grad'>category</em>" :link="route('shop')" link-text="Browse everything"/>
         <div class="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 lg:grid-cols-4">
-            @php $tones = ['bg-[#f3ead9]', 'bg-[#efe7dc]', 'bg-[#f5eee2]', 'bg-[#ece2d1]', 'bg-[#f2ebdf]', 'bg-[#eee4d4]', 'bg-[#f4ecdf]', 'bg-[#ebe1cf]']; @endphp
+            @php $tones = array_fill(0, 8, 'bg-white ring-1 ring-line hover:ring-[#b8914f]/60 hover:shadow-[0_30px_60px_-35px_rgba(143,106,47,.5)]'); @endphp
             @foreach ($categories as $k => $c)
                 @php $sample = \App\Models\Product::active()->inCategory($c)->with('primaryImage')->orderByDesc('is_featured')->first(); @endphp
+                @continue(! $sample)
                 <a href="{{ route('category.show', $c) }}" class="reveal group relative flex min-w-[220px] snap-start flex-col overflow-hidden rounded-[1.75rem] {{ $tones[$k % 8] }} p-6 transition duration-500 hover:-translate-y-1" style="transition-delay: {{ $k * 50 }}ms">
                     <div class="flex items-start justify-between">
                         <div>
                             <h3 class="text-xl leading-tight">{{ $c->name }}</h3>
                             <p class="mt-1 text-xs font-semibold text-muted">Explore collection</p>
                         </div>
-                        <span class="grid size-9 place-items-center rounded-full bg-white/70 transition group-hover:bg-ink group-hover:text-white"><x-icon name="arrow-right" class="size-4 -rotate-45 transition group-hover:rotate-0"/></span>
+                        <span class="grid size-9 place-items-center rounded-full bg-sand transition group-hover:gold-grad group-hover:text-ink"><x-icon name="arrow-right" class="size-4 -rotate-45 transition group-hover:rotate-0"/></span>
                     </div>
                     <div class="mt-4 aspect-[4/3] overflow-hidden">
                         @if ($c->image_url || $sample)
-                            <img src="{{ $c->image_url ?? $sample->image_url }}" alt="{{ $c->name }}" loading="lazy" class="size-full scale-110 object-cover mix-blend-multiply transition duration-700 group-hover:scale-[1.18]">
+                            <img src="{{ $c->image_url ?? $sample->image_url }}" alt="{{ $c->name }}" loading="lazy" class="size-full object-contain transition duration-700 group-hover:scale-110">
                         @endif
                     </div>
                 </a>
@@ -130,7 +131,7 @@
     @endif
 
     {{-- EYEGLASSES + SUNGLASSES split --}}
-    <section class="bg-white py-20 md:py-24">
+    <section class="border-y border-line/70 bg-sand py-20 md:py-24">
         <div class="container-x space-y-20">
             @foreach ([['Eyeglasses', 'eyeglasses', $eyeglasses, 'Frames that work as hard as you do', 'Lightweight acetate and titanium, ready for single-vision, blue-light or progressive lenses.'], ['Sunglasses', 'sunglasses', $sunglasses, 'Made for the Pakistani sun', 'Full UV400 protection with polarised options — aviators, cat-eyes and everything between.']] as $idx => [$label, $slug, $list, $headline, $copy])
                 @if ($list->isNotEmpty())
