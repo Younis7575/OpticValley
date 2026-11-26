@@ -32,6 +32,15 @@ class HomeController extends Controller
             'brands' => Brand::active()->where('is_featured', true)->get(),
             'testimonials' => Review::with('product')->where('is_approved', true)->where('rating', 5)->latest()->take(6)->get(),
             'posts' => Post::published()->take(3)->get(),
+            'men' => $base()->where('gender', 'men')->orderByDesc('is_featured')->latest()->take(8)->get(),
+            'kids' => $base()->where('gender', 'kids')->latest()->take(8)->get(),
+            'shapes' => Product::active()->whereNotNull('frame_shape')->selectRaw('frame_shape, COUNT(*) as c')->groupBy('frame_shape')->orderByDesc('c')->pluck('c', 'frame_shape'),
+            'stats' => [
+                'products' => Product::active()->count(),
+                'brands' => Brand::active()->has('products')->count(),
+                'from' => (float) Product::active()->min('price'),
+            ],
+            'spotlight' => $base()->where('is_featured', true)->inRandomOrder()->first(),
             'rating' => ['avg' => (float) Review::where('is_approved', true)->avg('rating'), 'count' => Review::where('is_approved', true)->count()],
             'wishlistIds' => auth()->user()?->wishlist()->pluck('products.id')->all() ?? [],
         ]);

@@ -88,169 +88,279 @@
         </section>
     @endif
 
-    {{-- SHOP BY CATEGORY --}}
-    <section class="container-x py-20 md:py-24">
-        <x-section-head eyebrow="Find your fit" title="Shop by <em class='italic text-gold-grad'>category</em>" :link="route('shop')" link-text="Browse everything"/>
-        <div class="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 lg:grid-cols-4">
-            @php $tones = array_fill(0, 8, 'bg-white ring-1 ring-line hover:ring-[#b8914f]/60 hover:shadow-[0_30px_60px_-35px_rgba(143,106,47,.5)]'); @endphp
-            @foreach ($categories as $k => $c)
-                @php $sample = \App\Models\Product::active()->inCategory($c)->with('primaryImage')->orderByDesc('is_featured')->first(); @endphp
-                @continue(! $sample)
-                <a href="{{ route('category.show', $c) }}" class="reveal group relative flex min-w-[220px] snap-start flex-col overflow-hidden rounded-[1.75rem] {{ $tones[$k % 8] }} p-6 transition duration-500 hover:-translate-y-1" style="transition-delay: {{ $k * 50 }}ms">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h3 class="text-xl leading-tight">{{ $c->name }}</h3>
-                            <p class="mt-1 text-xs font-semibold text-muted">Explore collection</p>
-                        </div>
-                        <span class="grid size-9 place-items-center rounded-full bg-sand transition group-hover:gold-grad group-hover:text-ink"><x-icon name="arrow-right" class="size-4 -rotate-45 transition group-hover:rotate-0"/></span>
-                    </div>
-                    <div class="mt-4 aspect-[4/3] overflow-hidden">
-                        @if ($c->image_url || $sample)
-                            <img src="{{ $c->image_url ?? $sample->image_url }}" alt="{{ $c->name }}" loading="lazy" class="size-full object-contain transition duration-700 group-hover:scale-110">
-                        @endif
-                    </div>
-                </a>
+
+    {{-- TRUST STATS --}}
+    <section class="relative z-10 bg-onyx text-white">
+        <div class="h-px gold-grad opacity-70"></div>
+        <div class="container-x grid grid-cols-2 divide-white/10 py-8 md:grid-cols-4 md:divide-x">
+            @foreach ([
+                [$stats['products'].'+', 'Frames in stock', 'box'],
+                [money($stats['from']), 'Frames starting from', 'tag'],
+                ['COD', 'Cash on Delivery nationwide', 'truck'],
+                ['7 days', 'Easy returns & exchange', 'refresh'],
+            ] as [$big, $small, $ic])
+                <div class="reveal flex items-center gap-4 px-2 py-3 md:justify-center md:px-6" style="transition-delay: {{ $loop->index * 80 }}ms">
+                    <span class="grid size-12 shrink-0 place-items-center rounded-full border border-[#b8914f]/40 text-[#e8d3a2]"><x-icon :name="$ic" class="size-5"/></span>
+                    <div><p class="font-display text-2xl text-gold-grad md:text-[1.7rem]">{{ $big }}</p><p class="text-[11px] uppercase tracking-[0.16em] text-white/55">{{ $small }}</p></div>
+                </div>
             @endforeach
         </div>
     </section>
 
-    {{-- FEATURED --}}
-    @if ($featured->isNotEmpty())
-        <section class="container-x pb-20 md:pb-24" x-data="{ tab: 'featured' }">
-            <div class="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-                <div>
-                    <p class="eyebrow mb-2">Curated for you</p>
-                    <h2 class="text-3xl md:text-[2.6rem]">This season's <em class="italic text-gold-grad">favourites</em></h2>
-                </div>
-                <div class="flex gap-1 rounded-full border border-line bg-white p-1 text-sm font-semibold">
-                    @foreach (['featured' => 'Featured', 'best' => 'Best Sellers', 'new' => 'New Arrivals'] as $key => $label)
-                        <button @click="tab = '{{ $key }}'" class="rounded-full px-4 py-2 transition" :class="tab === '{{ $key }}' ? 'bg-ink text-white' : 'text-muted hover:text-ink'">{{ $label }}</button>
-                    @endforeach
-                </div>
+    {{-- GOLD MARQUEE --}}
+    <div class="overflow-hidden border-b border-line bg-white py-4">
+        <div class="flex w-max animate-marquee gap-12 font-display text-xl italic text-ink/80 md:text-2xl">
+            @for ($r = 0; $r < 2; $r++)
+                @foreach (['Prescription ready', 'Blue-light lenses', 'Flexible kids frames', 'Optician verified', 'Cash on Delivery', 'Free delivery over '.money(setting('free_shipping_threshold', 5000))] as $w)
+                    <span class="flex items-center gap-12">{{ $w }} <span class="text-sm not-italic text-gold">◆</span></span>
+                @endforeach
+            @endfor
+        </div>
+    </div>
+
+    {{-- EDITORIAL COLLECTIONS (BENTO) --}}
+    @php
+        $menFeat = $men->first(); $kidFeat = $kids->first();
+        $rxCount = \App\Models\Product::active()->where('prescription_enabled', true)->count();
+    @endphp
+    <section class="container-x py-20 md:py-28">
+        <div class="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+            <div>
+                <p class="eyebrow mb-3">The collections</p>
+                <h2 class="max-w-2xl text-4xl leading-[1.05] md:text-[3.4rem]">Eyewear curated for <em class="italic text-gold-grad">every face</em> &amp; every age.</h2>
             </div>
-            @foreach (['featured' => $featured, 'best' => $bestSellers, 'new' => $newArrivals] as $key => $list)
-                <div x-show="tab === '{{ $key }}'" @if ($key !== 'featured') x-cloak @endif x-transition.opacity.duration.400ms class="grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-4">
-                    @foreach ($list as $p)<x-product-card :product="$p" :wishlisted="in_array($p->id, $wishlistIds)"/>@endforeach
+            <a href="{{ route('shop') }}" class="btn-outline shrink-0">Explore all {{ $stats['products'] }} frames <x-icon name="arrow-right" class="size-4"/></a>
+        </div>
+        <div class="grid gap-5 md:grid-cols-6 md:grid-rows-2">
+            {{-- Men --}}
+            <a href="{{ route('category.show', 'mens-eyeglasses') }}" class="reveal group relative overflow-hidden rounded-[2rem] bg-onyx p-8 text-white md:col-span-4 md:row-span-2 md:min-h-[560px] md:p-12">
+                <div class="pointer-events-none absolute -right-24 -top-24 size-[420px] rounded-full bg-[#b8914f]/20 blur-3xl transition duration-700 group-hover:bg-[#b8914f]/35"></div>
+                <div class="pointer-events-none absolute -bottom-32 left-10 size-[380px] rounded-full border border-[#b8914f]/20"></div>
+                <div class="relative flex h-full flex-col">
+                    <p class="eyebrow !text-[#e8d3a2]">Men's eyeglasses</p>
+                    <h3 class="mt-3 max-w-sm text-4xl leading-tight md:text-5xl">Sharp lines.<br>Lasting comfort.</h3>
+                    <p class="mt-4 max-w-xs text-sm text-white/60">Lightweight frames with 180° flexible hinges — ready for your prescription.</p>
+                    @if ($menFeat)
+                        <img src="{{ $menFeat->image_url }}" alt="{{ $menFeat->name }}" loading="lazy" class="my-6 w-full max-w-xl self-center drop-shadow-[0_30px_40px_rgba(0,0,0,.55)] transition duration-700 group-hover:-translate-y-2 group-hover:scale-105 md:absolute md:bottom-6 md:right-0 md:my-0 md:w-[62%]">
+                    @endif
+                    <span class="mt-auto inline-flex w-max items-center gap-2 rounded-full gold-grad px-6 py-3 text-sm font-bold text-ink">Shop men <x-icon name="arrow-right" class="size-4 transition group-hover:translate-x-1"/></span>
                 </div>
-            @endforeach
+            </a>
+            {{-- Kids --}}
+            <a href="{{ route('category.show', 'kids-eyeglasses') }}" class="reveal group relative overflow-hidden rounded-[2rem] bg-[#f6efe2] p-8 md:col-span-2" style="transition-delay:80ms">
+                <p class="eyebrow">Kids collection</p>
+                <h3 class="mt-2 text-3xl leading-tight">Flexible.<br>Tough. Fun.</h3>
+                @if ($kidFeat)<img src="{{ $kidFeat->image_url }}" alt="{{ $kidFeat->name }}" loading="lazy" class="mt-2 w-full drop-shadow-[0_18px_22px_rgba(143,106,47,.35)] transition duration-700 group-hover:scale-105">@endif
+                <span class="inline-flex items-center gap-2 text-sm font-bold">Shop kids · from {{ money(1500) }} <x-icon name="arrow-right" class="size-4 transition group-hover:translate-x-1"/></span>
+            </a>
+            {{-- Prescription --}}
+            <a href="{{ route('shop', ['rx' => 1]) }}" class="reveal group relative overflow-hidden rounded-[2rem] gold-grad p-8 text-ink md:col-span-2" style="transition-delay:160ms">
+                <div class="pointer-events-none absolute -bottom-10 -right-10 size-48 rounded-full border-[18px] border-white/25"></div>
+                <div class="pointer-events-none absolute -bottom-2 right-20 size-28 rounded-full border-[12px] border-white/20"></div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.28em] text-ink/70">Prescription glasses</p>
+                <h3 class="mt-2 text-3xl leading-tight">Your power,<br>perfectly fitted.</h3>
+                <p class="mt-3 max-w-[15rem] text-sm text-ink/70">{{ $rxCount }} frames ready for single-vision, blue-light &amp; progressive lenses.</p>
+                <span class="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-[#e8d3a2]">Choose frame <x-icon name="arrow-right" class="size-4 transition group-hover:translate-x-1"/></span>
+            </a>
+        </div>
+    </section>
+
+    {{-- BESTSELLERS / NEW TABS --}}
+    @if ($featured->isNotEmpty())
+        <section class="relative overflow-hidden border-y border-line bg-[#faf7f1] py-20 md:py-24" x-data="{ tab: 'featured' }">
+            <div class="container-x">
+                <div class="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                    <div>
+                        <p class="eyebrow mb-2">Curated for you</p>
+                        <h2 class="text-4xl md:text-[3rem]">This season's <em class="italic text-gold-grad">favourites</em></h2>
+                    </div>
+                    <div class="flex gap-1 rounded-full border border-line bg-white p-1 text-sm font-semibold shadow-sm">
+                        @foreach (['featured' => 'Featured', 'best' => 'Best Sellers', 'new' => 'New Arrivals'] as $key => $label)
+                            <button @click="tab = '{{ $key }}'" class="rounded-full px-5 py-2.5 transition" :class="tab === '{{ $key }}' ? 'bg-onyx text-[#e8d3a2] shadow' : 'text-muted hover:text-ink'">{{ $label }}</button>
+                        @endforeach
+                    </div>
+                </div>
+                @foreach (['featured' => $featured, 'best' => $bestSellers, 'new' => $newArrivals] as $key => $list)
+                    <div x-show="tab === '{{ $key }}'" @if ($key !== 'featured') x-cloak @endif x-transition.opacity.duration.400ms class="grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-4">
+                        @foreach ($list as $p)<x-product-card :product="$p" :wishlisted="in_array($p->id, $wishlistIds)"/>@endforeach
+                    </div>
+                @endforeach
+                <div class="mt-12 text-center"><a href="{{ route('shop') }}" class="btn-primary px-8 py-4">View all frames <x-icon name="arrow-right" class="size-4"/></a></div>
+            </div>
         </section>
     @endif
 
-    {{-- PROMO TILES --}}
-    @if ($promos->isNotEmpty())
-        <section class="container-x pb-20 md:pb-24">
-            <div class="grid gap-4 md:grid-cols-3 md:gap-5">
-                @foreach ($promos as $k => $promo)
-                    @php $dark = $promo->theme === 'dark'; @endphp
-                    <a href="{{ $promo->link ?: route('shop') }}" class="reveal group relative flex min-h-[340px] flex-col justify-between overflow-hidden rounded-[2rem] p-8 {{ $dark ? 'bg-ink text-white' : 'bg-sand' }} {{ $k === 0 ? 'md:row-span-1' : '' }}" style="transition-delay: {{ $k * 80 }}ms">
-                        <img src="{{ $promo->image_url }}" alt="" loading="lazy" class="absolute inset-0 size-full object-cover transition duration-[1.2s] group-hover:scale-105 {{ $dark ? 'opacity-40' : '' }}">
-                        <div class="absolute inset-0 {{ $dark ? 'bg-gradient-to-t from-ink via-ink/40 to-transparent' : 'bg-gradient-to-t from-white/70 via-transparent to-transparent' }}"></div>
-                        <p class="eyebrow relative {{ $dark ? '!text-[#d8b47e]' : '' }}">{{ $promo->eyebrow }}</p>
-                        <div class="relative">
-                            <h3 class="text-3xl">{{ $promo->title }}</h3>
-                            <p class="mt-1 text-sm {{ $dark ? 'text-white/70' : 'text-ink-2' }}">{{ $promo->subtitle }}</p>
-                            <span class="mt-5 inline-flex items-center gap-2 text-sm font-bold">{{ $promo->button_text ?: 'Shop' }} <x-icon name="arrow-right" class="size-4 transition group-hover:translate-x-1"/></span>
-                        </div>
+    {{-- SHOP BY SHAPE --}}
+    @if ($shapes->isNotEmpty())
+        @php
+            $shapeSvg = [
+                'round' => '<circle cx="18" cy="20" r="11"/><circle cx="46" cy="20" r="11"/><path d="M29 18q3-3 6 0"/>',
+                'square' => '<rect x="6" y="9" width="23" height="22" rx="4"/><rect x="35" y="9" width="23" height="22" rx="4"/><path d="M29 17q3-3 6 0"/>',
+                'rectangle' => '<rect x="4" y="12" width="25" height="16" rx="4"/><rect x="35" y="12" width="25" height="16" rx="4"/><path d="M29 18q3-3 6 0"/>',
+                'oval' => '<ellipse cx="17" cy="20" rx="13" ry="9"/><ellipse cx="47" cy="20" rx="13" ry="9"/><path d="M30 18q2-2 4 0"/>',
+                'wayfarer' => '<path d="M4 11h25l-3 15q-1 4-5 4H10q-4 0-5-4Z"/><path d="M35 11h25l-1 15q-1 4-5 4h-11q-4 0-5-4Z"/><path d="M29 15q3-3 6 0"/>',
+                'cat-eye' => '<path d="M3 10q12 1 26 3-1 14-12 15T3 10Z"/><path d="M61 10q-12 1-26 3 1 14 12 15t14-18Z"/>',
+                'aviator' => '<path d="M5 12q0-3 4-3h18q3 0 2 4-2 12-12 14T5 12Z"/><path d="M59 12q0-3-4-3H37q-3 0-2 4 2 12 12 14t12-15Z"/><path d="M27 9h10"/>',
+                'geometric' => '<path d="M10 8h14l6 12-6 12H10L4 20Z"/><path d="M40 8h14l6 12-6 12H40l-6-12Z"/>',
+            ];
+        @endphp
+        <section class="container-x py-20 md:py-24">
+            <div class="text-center">
+                <p class="eyebrow mb-3">Find your fit</p>
+                <h2 class="text-4xl md:text-[3rem]">Shop by <em class="italic text-gold-grad">frame shape</em></h2>
+            </div>
+            <div class="mt-12 flex flex-wrap justify-center gap-4 md:gap-6">
+                @foreach ($shapes as $shape => $count)
+                    <a href="{{ route('shop', ['shape' => [$shape]]) }}" class="reveal group flex w-[150px] flex-col items-center rounded-[1.75rem] border border-line bg-white px-4 py-7 transition duration-500 hover:-translate-y-1.5 hover:border-[#b8914f]/60 hover:shadow-[0_26px_50px_-30px_rgba(143,106,47,.55)] md:w-[170px]" style="transition-delay: {{ $loop->index * 60 }}ms">
+                        <span class="grid h-20 w-full place-items-center rounded-2xl bg-[#faf7f1] transition group-hover:bg-onyx">
+                            <svg viewBox="0 0 64 40" class="h-10 w-auto text-ink transition group-hover:text-[#e8d3a2]" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round">{!! $shapeSvg[$shape] ?? $shapeSvg['round'] !!}</svg>
+                        </span>
+                        <span class="mt-4 font-semibold">{{ ucwords(str_replace('-', ' ', $shape)) }}</span>
+                        <span class="text-xs text-muted">{{ $count }} {{ \Illuminate\Support\Str::plural('style', $count) }}</span>
                     </a>
                 @endforeach
             </div>
         </section>
     @endif
 
-    {{-- EYEGLASSES + SUNGLASSES split --}}
-    <section class="border-y border-line/70 bg-sand py-20 md:py-24">
-        <div class="container-x space-y-20">
-            @foreach ([['Eyeglasses', 'eyeglasses', $eyeglasses, 'Frames that work as hard as you do', 'Lightweight acetate and titanium, ready for single-vision, blue-light or progressive lenses.'], ['Sunglasses', 'sunglasses', $sunglasses, 'Made for the Pakistani sun', 'Full UV400 protection with polarised options — aviators, cat-eyes and everything between.']] as $idx => [$label, $slug, $list, $headline, $copy])
-                @if ($list->isNotEmpty())
-                    <div class="grid items-center gap-10 lg:gap-14 {{ $idx ? 'lg:grid-cols-[1fr_360px]' : 'lg:grid-cols-[360px_1fr]' }}">
-                        <div class="{{ $idx ? 'lg:order-2' : '' }}">
-                            <p class="eyebrow mb-3">{{ $label }}</p>
-                            <h2 class="text-4xl leading-[1.08]">{{ $headline }}</h2>
-                            <p class="mt-4 text-sm leading-relaxed text-muted">{{ $copy }}</p>
-                            <div class="mt-6 flex flex-wrap gap-2">
-                                @foreach (['men' => 'Men', 'women' => 'Women', 'kids' => 'Kids'] as $g => $gl)
-                                    <a href="{{ route('category.show', $slug) }}?gender[]={{ $g }}" class="chip">{{ $gl }}</a>
-                                @endforeach
-                            </div>
-                            <a href="{{ route('category.show', $slug) }}" class="btn-primary mt-8">Shop {{ $label }} <x-icon name="arrow-right" class="size-4"/></a>
-                        </div>
-                        <div class="grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 xl:grid-cols-4 {{ $idx ? 'lg:order-1' : '' }}">
-                            @foreach ($list as $p)<x-product-card :product="$p" :wishlisted="in_array($p->id, $wishlistIds)"/>@endforeach
-                        </div>
+    {{-- SPOTLIGHT --}}
+    @if ($spotlight)
+        <section class="relative overflow-hidden bg-onyx text-white">
+            <div class="pointer-events-none absolute left-1/2 top-1/2 size-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#b8914f]/15 blur-[120px]"></div>
+            <div class="container-x relative grid items-center gap-12 py-20 md:py-28 lg:grid-cols-2">
+                <div class="relative order-2 lg:order-1">
+                    <div class="pointer-events-none absolute inset-6 rounded-full border border-[#b8914f]/25"></div>
+                    <div class="pointer-events-none absolute inset-20 rounded-full border border-[#b8914f]/15"></div>
+                    <img src="{{ $spotlight->image_url }}" alt="{{ $spotlight->name }}" loading="lazy" class="reveal relative mx-auto w-full max-w-[560px] drop-shadow-[0_40px_60px_rgba(0,0,0,.6)]">
+                </div>
+                <div class="order-1 lg:order-2">
+                    <p class="eyebrow !text-[#e8d3a2]">Frame of the week</p>
+                    <h2 class="mt-3 text-4xl leading-tight md:text-5xl">{{ $spotlight->name }}</h2>
+                    <div class="gold-rule mt-6"></div>
+                    <p class="mt-6 max-w-md text-white/65">{{ $spotlight->short_description }}</p>
+                    <ul class="mt-6 grid max-w-md grid-cols-2 gap-3 text-sm text-white/75">
+                        @foreach (array_filter([
+                            $spotlight->frame_shape ? ucwords(str_replace('-', ' ', $spotlight->frame_shape)).' shape' : null,
+                            \App\Models\Product::FRAME_TYPES[$spotlight->frame_type] ?? null,
+                            $spotlight->prescription_enabled ? 'Prescription ready' : null,
+                            '6-month warranty',
+                        ]) as $f)
+                            <li class="flex items-center gap-2"><span class="grid size-5 place-items-center rounded-full gold-grad text-ink"><x-icon name="check" class="size-3"/></span>{{ $f }}</li>
+                        @endforeach
+                    </ul>
+                    <div class="mt-8 flex flex-wrap items-center gap-5">
+                        <span class="font-display text-4xl text-gold-grad">{{ money($spotlight->final_price) }}</span>
+                        <a href="{{ route('product.show', $spotlight) }}" class="btn-brand px-8 py-4">{{ $spotlight->prescription_enabled ? 'Choose lenses' : 'Shop now' }} <x-icon name="arrow-right" class="size-4"/></a>
                     </div>
-                @endif
-            @endforeach
-        </div>
-    </section>
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- KIDS CAROUSEL --}}
+    @if ($kids->isNotEmpty())
+        <section class="py-20 md:py-24" x-data>
+            <div class="container-x mb-10 flex items-end justify-between gap-6">
+                <div>
+                    <p class="eyebrow mb-2">Little ones</p>
+                    <h2 class="text-4xl md:text-[3rem]">Kids frames they'll <em class="italic text-gold-grad">love wearing</em></h2>
+                </div>
+                <div class="hidden gap-2 sm:flex">
+                    <button @click="$refs.kr.scrollBy({ left: -340, behavior: 'smooth' })" class="grid size-12 place-items-center rounded-full border border-line hover:border-ink" aria-label="Previous"><x-icon name="chevron-left" class="size-4"/></button>
+                    <button @click="$refs.kr.scrollBy({ left: 340, behavior: 'smooth' })" class="grid size-12 place-items-center rounded-full bg-onyx text-[#e8d3a2] hover:opacity-90" aria-label="Next"><x-icon name="chevron-right" class="size-4"/></button>
+                </div>
+            </div>
+            <div x-ref="kr" class="no-scrollbar container-x flex snap-x gap-5 overflow-x-auto pb-4">
+                @foreach ($kids as $p)
+                    <div class="w-[260px] shrink-0 snap-start md:w-[300px]"><x-product-card :product="$p" :wishlisted="in_array($p->id, $wishlistIds)"/></div>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
     {{-- LENS STORY --}}
-    <section class="relative overflow-hidden bg-onyx text-white">
-        <div class="pointer-events-none absolute -left-32 -top-32 size-[520px] rounded-full border border-white/10"></div>
-        <div class="pointer-events-none absolute -bottom-40 right-10 size-[420px] rounded-full bg-white/5"></div>
-        <div class="container-x relative grid gap-12 py-20 md:py-24 lg:grid-cols-2 lg:items-center">
+    <section class="relative overflow-hidden bg-[#faf7f1]">
+        <div class="container-x grid gap-12 py-20 md:py-28 lg:grid-cols-2 lg:items-center">
             <div>
-                <p class="eyebrow mb-4 !text-[#d8b47e]">Precision lenses</p>
+                <p class="eyebrow mb-4">Precision lenses</p>
                 <h2 class="text-4xl leading-[1.05] md:text-5xl">Your prescription, <em class="italic text-gold-grad">perfected</em> in three steps.</h2>
-                <p class="mt-5 max-w-md text-white/70">Pick a frame, choose your lens technology, then type in your prescription or simply upload a photo. Our opticians verify every order before it is fitted.</p>
-                <a href="{{ route('shop', ['rx' => 1]) }}" class="btn-brand mt-8 px-8 py-4">Shop prescription frames</a>
+                <p class="mt-5 max-w-md text-muted">Pick a frame, choose your lens technology, then type in your prescription or simply upload a photo. Our opticians verify every order before it is fitted.</p>
+                <div class="mt-8 flex flex-wrap gap-2">
+                    @foreach (\App\Models\LensOption::active()->get() as $lens)
+                        <span class="chip !border-[#b8914f]/30 !bg-white">{{ $lens->name }} @if ($lens->price > 0)<span class="text-brand">+{{ money($lens->price) }}</span>@endif</span>
+                    @endforeach
+                </div>
+                <a href="{{ route('shop', ['rx' => 1]) }}" class="btn-primary mt-8 px-8 py-4">Shop prescription frames</a>
             </div>
-            <ol class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-                @foreach ([['Choose your frame', 'Over '.max(20, \App\Models\Product::active()->where('prescription_enabled', true)->count()).' prescription-ready styles.'], ['Select your lens', 'Clear, blue-light, anti-glare, photochromic or progressive.'], ['Add your prescription', 'Enter SPH/CYL/AXIS values or upload a photo — we handle the rest.']] as $n => [$t, $d])
-                    <li class="reveal flex gap-5 rounded-3xl border border-[#b8914f]/25 bg-white/[.03] p-6 backdrop-blur" style="transition-delay: {{ $n * 100 }}ms">
-                        <span class="font-display text-4xl italic text-gold-grad">0{{ $n + 1 }}</span>
-                        <div><p class="font-semibold">{{ $t }}</p><p class="mt-1 text-sm text-white/65">{{ $d }}</p></div>
+            <ol class="relative grid gap-4">
+                <div class="absolute bottom-10 left-[38px] top-10 w-px bg-gradient-to-b from-[#b8914f] to-transparent max-sm:hidden"></div>
+                @foreach ([['Choose your frame', $stats['products'].' styles, from '.money($stats['from']).'.'], ['Select your lens', 'Clear, blue-light, anti-glare, photochromic or progressive.'], ['Add your prescription', 'Enter SPH / CYL / AXIS values or upload a photo — we handle the rest.']] as $n => [$t, $d])
+                    <li class="reveal relative flex gap-5 rounded-3xl border border-line bg-white p-6 shadow-[0_20px_40px_-34px_rgba(14,13,12,.4)]" style="transition-delay: {{ $n * 100 }}ms">
+                        <span class="relative z-10 grid size-14 shrink-0 place-items-center rounded-full gold-grad font-display text-2xl text-ink">{{ $n + 1 }}</span>
+                        <div><p class="text-lg font-semibold">{{ $t }}</p><p class="mt-1 text-sm text-muted">{{ $d }}</p></div>
                     </li>
                 @endforeach
             </ol>
         </div>
     </section>
 
-    {{-- SPECIAL OFFERS --}}
-    @if ($offers->isNotEmpty())
-        <section class="container-x py-20 md:py-24">
-            <x-section-head eyebrow="Limited time" title="Special <em class='italic text-sale'>offers</em>" :link="route('shop', ['sale' => 1])" link-text="Shop the sale"/>
-            <div class="grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-4">
-                @foreach ($offers as $p)<x-product-card :product="$p" :wishlisted="in_array($p->id, $wishlistIds)"/>@endforeach
-            </div>
-        </section>
-    @endif
-
-    {{-- BRANDS --}}
-    @if ($brands->isNotEmpty())
-        <section class="border-y border-[#b8914f]/20 bg-white py-12">
-            <div class="container-x">
-                <p class="mb-8 text-center text-xs font-bold uppercase tracking-[0.24em] text-muted">Our featured labels</p>
-                <div class="flex flex-wrap items-center justify-center gap-x-14 gap-y-6">
-                    @foreach ($brands as $b)
-                        <a href="{{ route('brand.show', $b) }}" class="font-display text-2xl text-ink/45 transition hover:text-ink md:text-3xl">
-                            @if ($b->logo_url)<img src="{{ $b->logo_url }}" alt="{{ $b->name }}" class="h-8 w-auto opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0">@else{{ $b->name }}@endif
-                        </a>
-                    @endforeach
+    {{-- WHY OPTICVALLEY --}}
+    <section class="container-x py-20 md:py-28">
+        <div class="text-center">
+            <p class="eyebrow mb-3">The OpticValley promise</p>
+            <h2 class="mx-auto max-w-2xl text-4xl md:text-[3rem]">Luxury eyewear, <em class="italic text-gold-grad">honest</em> prices.</h2>
+        </div>
+        <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ([
+                ['shield', 'Optician verified', 'Every pair is checked against your prescription before it leaves our Lahore studio.'],
+                ['eye', 'Precision lenses', 'Single-vision to progressive, with blue-light and anti-glare coatings.'],
+                ['truck', 'Nationwide delivery', setting('shipping_note', 'Delivered in 2–5 working days across Pakistan.')],
+                ['tag', 'Cash on Delivery', 'Pay at your doorstep — no card needed, anywhere in Pakistan.'],
+                ['refresh', '7-day returns', 'Not the right fit? Return unused frames within 7 days.'],
+                ['whatsapp', 'Real people on WhatsApp', 'Chat with our team for frame advice and order updates.'],
+            ] as [$ic, $t, $d])
+                <div class="reveal group rounded-[1.75rem] border border-line bg-white p-8 transition duration-500 hover:-translate-y-1 hover:border-[#b8914f]/50 hover:shadow-[0_30px_60px_-40px_rgba(143,106,47,.6)]" style="transition-delay: {{ $loop->index * 60 }}ms">
+                    <span class="grid size-14 place-items-center rounded-2xl bg-onyx text-[#e8d3a2] transition group-hover:gold-grad group-hover:text-ink"><x-icon :name="$ic" class="size-6"/></span>
+                    <h3 class="mt-6 font-sans text-lg font-semibold tracking-normal">{{ $t }}</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-muted">{{ $d }}</p>
                 </div>
-            </div>
-        </section>
-    @endif
+            @endforeach
+        </div>
+    </section>
 
-    {{-- TESTIMONIALS --}}
-    @if ($testimonials->isNotEmpty())
-        <section class="overflow-hidden py-20 md:py-24">
-            <div class="container-x">
-                <x-section-head eyebrow="Loved across Pakistan" title="What our customers <em class='italic text-gold-grad'>see</em>"/>
+    {{-- VISIT THE STORE --}}
+    <section class="container-x pb-20 md:pb-28">
+        <div class="relative overflow-hidden rounded-[2.5rem] bg-onyx text-white">
+            <img src="{{ asset('images/hero/store-front-md.webp') }}" alt="OpticValley store" loading="lazy" class="absolute inset-0 size-full object-cover opacity-45">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#0e0d0c] via-[#0e0d0c]/85 to-[#0e0d0c]/30"></div>
+            <div class="relative grid gap-10 p-8 md:p-14 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+                <div>
+                    <p class="eyebrow !text-[#e8d3a2]">Visit our studio</p>
+                    <h2 class="mt-3 text-4xl leading-tight md:text-5xl">Try before you buy,<br><em class="italic text-gold-grad">in Gulberg III</em>.</h2>
+                    <p class="mt-5 max-w-md text-white/65">Free eye-wear consultation, frame fitting and adjustments by our team. Walk in any day of the week.</p>
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ rawurlencode(setting('store_address')) }}" target="_blank" rel="noopener" class="btn-brand px-7 py-3.5"><x-icon name="pin" class="size-4"/> Get directions</a>
+                        <a href="https://wa.me/{{ preg_replace('/\D/', '', setting('whatsapp_number')) }}" target="_blank" rel="noopener" class="btn border border-white/25 px-7 py-3.5 text-white hover:border-[#e8d3a2] hover:text-[#e8d3a2]"><x-icon name="whatsapp" class="size-4"/> WhatsApp us</a>
+                    </div>
+                </div>
+                <dl class="grid gap-4 rounded-3xl border border-white/10 bg-white/[.04] p-6 backdrop-blur md:p-8">
+                    <div class="flex gap-4"><x-icon name="pin" class="mt-0.5 size-5 shrink-0 text-[#e8d3a2]"/><div><dt class="text-xs uppercase tracking-[0.18em] text-white/45">Address</dt><dd class="mt-1 text-sm">{{ setting('store_address') }}</dd></div></div>
+                    <div class="flex gap-4"><x-icon name="phone" class="mt-0.5 size-5 shrink-0 text-[#e8d3a2]"/><div><dt class="text-xs uppercase tracking-[0.18em] text-white/45">Phone</dt><dd class="mt-1 text-sm">{{ setting('store_phone') }}</dd></div></div>
+                    <div class="flex gap-4"><x-icon name="sparkle" class="mt-0.5 size-5 shrink-0 text-[#e8d3a2]"/><div><dt class="text-xs uppercase tracking-[0.18em] text-white/45">Hours</dt><dd class="mt-1 text-sm">{{ setting('store_hours') }}</dd></div></div>
+                </dl>
             </div>
+        </div>
+    </section>
+
+    {{-- TESTIMONIALS (real approved reviews only) --}}
+    @if ($testimonials->isNotEmpty())
+        <section class="overflow-hidden bg-[#faf7f1] py-20 md:py-24">
+            <div class="container-x"><x-section-head eyebrow="Loved across Pakistan" title="What our customers <em class='italic text-gold-grad'>see</em>"/></div>
             <div class="no-scrollbar container-x flex snap-x gap-5 overflow-x-auto pb-4">
                 @foreach ($testimonials as $t)
                     <figure class="card flex min-w-[300px] max-w-[360px] snap-start flex-col justify-between p-7 md:min-w-[360px]">
-                        <div>
-                            <x-stars :rating="$t->rating" size="size-4"/>
-                            <blockquote class="mt-4 font-display text-lg leading-snug">“{{ $t->body }}”</blockquote>
-                        </div>
-                        <figcaption class="mt-6 flex items-center justify-between gap-3 border-t border-line pt-5">
-                            <div class="flex items-center gap-3">
-                                <span class="grid size-10 place-items-center rounded-full bg-sand font-display text-lg">{{ mb_substr($t->name, 0, 1) }}</span>
-                                <div><p class="text-sm font-bold">{{ $t->name }}</p><p class="text-[11px] text-muted">Verified buyer</p></div>
-                            </div>
-                            @if ($t->product)<a href="{{ route('product.show', $t->product) }}" class="text-right text-[11px] font-semibold text-muted hover:text-ink">{{ $t->product->name }}</a>@endif
-                        </figcaption>
+                        <div><x-stars :rating="$t->rating" size="size-4"/><blockquote class="mt-4 font-display text-lg leading-snug">“{{ $t->body }}”</blockquote></div>
+                        <figcaption class="mt-6 border-t border-line pt-5 text-sm font-bold">{{ $t->name }} <span class="font-normal text-muted">· Verified buyer</span></figcaption>
                     </figure>
                 @endforeach
             </div>
@@ -259,12 +369,12 @@
 
     {{-- JOURNAL --}}
     @if ($posts->isNotEmpty())
-        <section class="container-x pb-20 md:pb-24">
+        <section class="container-x py-20 md:py-24">
             <x-section-head eyebrow="The journal" title="Eye-care, <em class='italic text-gold-grad'>explained</em>" :link="route('blog.index')" link-text="All articles"/>
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($posts as $post)
                     <a href="{{ route('blog.show', $post) }}" class="group">
-                        <div class="aspect-[16/10] overflow-hidden rounded-[1.6rem] bg-sand"><img src="{{ $post->image_url }}" alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-105"></div>
+                        <div class="aspect-[16/10] overflow-hidden rounded-[1.6rem] bg-[#faf7f1] ring-1 ring-line"><img src="{{ $post->image_url }}" alt="" loading="lazy" class="size-full object-contain p-6 transition duration-700 group-hover:scale-105"></div>
                         <p class="mt-4 text-[11px] font-bold uppercase tracking-[0.18em] text-muted">{{ $post->published_at->format('M d, Y') }}</p>
                         <h3 class="mt-1.5 text-xl leading-snug"><span class="link-u">{{ $post->title }}</span></h3>
                     </a>
@@ -275,14 +385,14 @@
 
     {{-- NEWSLETTER --}}
     <section class="container-x pb-20 md:pb-24">
-        <div class="relative overflow-hidden rounded-[2.5rem] bg-onyx px-6 py-16 text-center text-white md:px-16">
-            <svg viewBox="0 0 64 40" class="pointer-events-none absolute -left-10 -top-6 h-56 text-[#b8914f]/20" fill="none" stroke="currentColor" stroke-width="3"><circle cx="16" cy="22" r="11"/><circle cx="48" cy="22" r="11"/><path d="M27 20q5-5 10 0"/></svg>
-            <svg viewBox="0 0 64 40" class="pointer-events-none absolute -bottom-10 -right-6 h-64 text-[#b8914f]/20" fill="none" stroke="currentColor" stroke-width="3"><circle cx="16" cy="22" r="11"/><circle cx="48" cy="22" r="11"/><path d="M27 20q5-5 10 0"/></svg>
-            <div class="relative mx-auto max-w-xl">
-                <p class="eyebrow mb-3">Insider list</p>
+        <div class="relative overflow-hidden rounded-[2.5rem] bg-onyx px-6 py-16 text-center text-white md:px-16 md:py-20">
+            <div class="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-[#b8914f]/20 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-24 -right-24 size-80 rounded-full bg-[#b8914f]/20 blur-3xl"></div>
+            <img src="{{ asset('images/logo-mark-light.png') }}" alt="" class="relative mx-auto h-12 w-auto opacity-90">
+            <div class="relative mx-auto mt-6 max-w-xl">
                 <h2 class="text-4xl md:text-5xl">Get <em class="italic text-gold-grad">10% off</em> your first pair.</h2>
-                <p class="mt-4 text-white/60">Join for early access to new collections and members-only offers. Use code <strong class="text-gold-light">WELCOME10</strong> at checkout.</p>
-                <form action="{{ route('newsletter') }}" method="POST" class="mx-auto mt-8 flex max-w-md flex-col gap-2 sm:flex-row sm:rounded-full sm:bg-white sm:p-1.5 sm:shadow-sm">
+                <p class="mt-4 text-white/60">Join for early access to new collections and members-only offers. Use code <strong class="text-[#e8d3a2]">WELCOME10</strong> at checkout.</p>
+                <form action="{{ route('newsletter') }}" method="POST" class="mx-auto mt-8 flex max-w-md flex-col gap-2 sm:flex-row sm:rounded-full sm:bg-white sm:p-1.5">
                     @csrf
                     <input type="email" name="email" required placeholder="Enter your email" class="field !rounded-full !border-0 sm:!ring-0" aria-label="Email address">
                     <button class="btn-brand shrink-0">Subscribe</button>

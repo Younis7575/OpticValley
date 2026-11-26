@@ -14,7 +14,7 @@
                 <span class="rounded-full bg-onyx px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-light">-{{ $product->discount_percent }}%</span>
             @endif
             @if ($product->is_new)
-                <span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink shadow-sm">New</span>
+                <span class="rounded-full gold-grad px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink shadow-sm">New</span>
             @endif
             @if (! $product->in_stock)
                 <span class="rounded-full bg-ink/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Sold out</span>
@@ -38,14 +38,23 @@
     </div>
     <div class="mt-4 flex flex-1 flex-col px-1">
         <div class="flex items-center justify-between gap-2">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">{{ $product->brand?->name }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-brand">{{ $product->brand?->name }}</p>
             @if ($product->rating_count)
                 <span class="flex items-center gap-1 text-[11px] text-muted"><x-stars :rating="$product->rating_avg" size="size-3"/> {{ $product->rating_count }}</span>
+            @elseif ($product->prescription_enabled)
+                <span class="rounded-full border border-[#b8914f]/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand">Rx ready</span>
             @endif
         </div>
-        <h3 class="mt-1 font-sans text-[15px] font-semibold leading-snug tracking-normal"><a href="{{ route('product.show', $product) }}" class="link-u">{{ $product->name }}</a></h3>
-        <div class="mt-1.5 flex items-baseline gap-2">
-            <span class="text-[15px] font-bold {{ $product->hasDiscount() ? 'text-sale' : '' }}">{{ money($product->final_price) }}</span>
+        <h3 class="mt-1.5 font-sans text-[15px] font-semibold leading-snug tracking-normal"><a href="{{ route('product.show', $product) }}" class="link-u">{{ $product->name }}</a></h3>
+        @php $meta = collect([$product->frame_shape ? ucwords(str_replace('-', ' ', $product->frame_shape)) : null, \App\Models\Product::FRAME_TYPES[$product->frame_type] ?? null])->filter(); @endphp
+        @if ($meta->isNotEmpty() || $product->frame_color)
+            <p class="mt-1 flex items-center gap-1.5 text-xs text-muted">
+                @if ($product->frame_color)<span class="size-3 rounded-full ring-1 ring-black/10" style="background: {{ \App\Support\FrameArt::COLORS[$product->frame_color][1] ?? '#bbb' }}"></span>@endif
+                {{ $meta->join(' · ') }}
+            </p>
+        @endif
+        <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-base font-bold {{ $product->hasDiscount() ? 'text-sale' : 'text-ink' }}">{{ money($product->final_price) }}</span>
             @if ($product->hasDiscount())
                 <span class="text-xs text-muted line-through">{{ money($product->price) }}</span>
             @endif
