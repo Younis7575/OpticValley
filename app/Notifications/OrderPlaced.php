@@ -20,20 +20,17 @@ class OrderPlaced extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $o = $this->order->loadMissing('items');
+        $o = $this->order->loadMissing('items.product.primaryImage');
         $mail = (new MailMessage)
-            ->subject(($this->forAdmin ? 'New order ' : 'Your OpticValley order ').$o->order_number)
-            ->greeting($this->forAdmin ? 'New order received' : 'Thank you, '.$o->customer_name.'!')
-            ->line($this->forAdmin
-                ? "{$o->customer_name} ({$o->customer_phone}) placed an order of ".money($o->total).'.'
-                : 'We have received your order and will confirm it shortly by phone or WhatsApp.');
-        foreach ($o->items as $item) {
-            $mail->line("• {$item->name}".($item->variant_name ? " ({$item->variant_name})" : '')." × {$item->quantity} — ".money($item->line_total));
-        }
-        $mail->line('Total: '.money($o->total).' · Payment: '.$o->payment_method_label);
+            ->subject($this->forAdmin ? "New order {$o->order_number} — ".money($o->total) : "Your OpticValley order {$o->order_number} is confirmed")
+            ->view('emails.order-placed', ['order' => $o, 'forAdmin' => $this->forAdmin]);
 
-        return $this->forAdmin
-            ? $mail->action('Open in admin', route('admin.orders.show', $o))
-            : $mail->action('Track your order', route('track'))->line('Order number: '.$o->order_number);
+        if ($this->forAdmin) {
+            $mail->replyTo($o->customer_email, $o->customer_name);
+        } elseif ($reply = setting('store_email')) {
+            $mail->replyTo($reply, setting('store_name', 'OpticValley'));
+        }
+
+        return $mail;
     }
 }
