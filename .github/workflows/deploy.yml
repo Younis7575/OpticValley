@@ -58,7 +58,7 @@ jobs:
           rm -rf node_modules tests .env storage/logs/*.log public/uploads public/hot
           tar --exclude='.git' --exclude='.github' --exclude='storage/app/private/*' --exclude='storage/framework/sessions/*' \
               --exclude='storage/framework/views/*' --exclude='database/database.sqlite' --exclude='.claude' \
-              --exclude='OpticValley_Claude_Master_Prompt.md' -czf /tmp/release.tar.gz .
+              --exclude='OpticValley_Claude_Master_Prompt.md' --exclude='marketing' --exclude='OpticValley_2.0_Claude_Master_Prompt.md' -czf /tmp/release.tar.gz .
           mv /tmp/release.tar.gz release.tar.gz
           ls -lh release.tar.gz
 
