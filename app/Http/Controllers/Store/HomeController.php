@@ -19,12 +19,14 @@ class HomeController extends Controller
         $sunId = Category::where('slug', 'sunglasses')->first();
         $eyeId = Category::where('slug', 'eyeglasses')->first();
 
+        $usedSamples = [];
+
         return view('store.home', [
             'heroes' => Banner::active()->where('position', 'hero')->get(),
             'promos' => Banner::active()->where('position', 'promo')->take(3)->get(),
             'featured' => $base()->where('is_featured', true)->latest()->take(8)->get(),
-            'bestSellers' => $base()->where('is_best_seller', true)->orderByDesc('sold_count')->take(8)->get(),
-            'newArrivals' => $base()->where('is_new', true)->latest()->take(8)->get(),
+            'bestSellers' => ($bs = $base()->where('is_best_seller', true)->orderByDesc('sold_count')->take(8)->get())->isNotEmpty() ? $bs : $base()->orderByDesc('sold_count')->orderByDesc('is_featured')->take(8)->get(),
+            'newArrivals' => ($na = $base()->where('is_new', true)->latest()->take(8)->get())->isNotEmpty() ? $na : $base()->latest()->take(8)->get(),
             'sunglasses' => $sunId ? $base()->inCategory($sunId)->orderByDesc('sold_count')->take(4)->get() : collect(),
             'eyeglasses' => $eyeId ? $base()->inCategory($eyeId)->orderByDesc('is_featured')->take(4)->get() : collect(),
             'offers' => $base()->whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->orderByDesc('sold_count')->take(4)->get(),
@@ -48,12 +50,15 @@ class HomeController extends Controller
                 ['Sunglasses', route('category.show', 'sunglasses'), ($c = Category::where('slug', 'sunglasses')->first()) ? Product::active()->inCategory($c) : null],
                 ['Blue Light', route('category.show', 'blue-light-blocking-glasses'), ($c = Category::where('slug', 'blue-light-blocking-glasses')->first()) ? Product::active()->inCategory($c) : null],
                 ['Contact Lenses', route('category.show', 'contact-lenses'), ($c = Category::where('slug', 'contact-lenses')->first()) ? Product::active()->inCategory($c) : null],
-            ])->map(function ($c) {
+            ])->map(function ($c) use (&$usedSamples) {
                 if (! $c[2]) {
                     return null;
                 }
                 $count = (clone $c[2])->count();
-                $sample = $count ? (clone $c[2])->with('primaryImage')->orderByDesc('is_featured')->orderByDesc('tryon_enabled')->first() : null;
+                $sample = $count ? (clone $c[2])->with('primaryImage')->whereNotIn('id', $usedSamples)->orderByDesc('is_featured')->orderByDesc('tryon_enabled')->first() : null;
+                if ($sample) {
+                    $usedSamples[] = $sample->id;
+                }
 
                 return $count ? (object) ['name' => $c[0], 'url' => $c[1], 'count' => $count, 'image' => $sample?->image_url] : null;
             })->filter()->values(),

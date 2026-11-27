@@ -2,7 +2,7 @@
 @section('title', 'The Journal — eye care, style & lens guides')
 @section('description', 'Guides on choosing frames, lens technology, blue light and sunglasses from the OpticValley opticians.')
 @section('content')
-<section class="bg-sand border-b border-line/70"><div class="container-x py-14 md:py-20"><p class="eyebrow">The journal</p><h1 class="mt-2 text-4xl md:text-6xl">Eye-care, <em class="italic text-brand">explained</em>.</h1></div></section>
+<section class="bg-white border-b border-[#ecebe7]"><div class="container-x py-14 md:py-20"><p class="eyebrow">The journal</p><h1 class="mt-2 text-4xl md:text-6xl">Eye-care, <em class="italic text-brand">explained</em>.</h1></div></section>
 <section class="container-x py-14">
     <div class="grid gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
         @forelse ($posts as $post)

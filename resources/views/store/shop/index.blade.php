@@ -13,7 +13,7 @@
 @endif
 
 @section('content')
-    <section class="border-b border-line bg-sand border-b border-line/70">
+    <section class="border-b border-line bg-white border-b border-[#ecebe7]">
         <div class="container-x py-10 md:py-14">
             <x-breadcrumbs :items="array_filter([
                 $category?->parent?->name => $category?->parent ? route('category.show', $category->parent) : null,

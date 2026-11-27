@@ -2,7 +2,7 @@
 @section('title', 'Contact us')
 @section('description', 'Visit OpticValley in Gulberg III, Lahore, call us or message on WhatsApp. We reply within one working day.')
 @section('content')
-<section class="bg-sand border-b border-line/70"><div class="container-x py-14 md:py-20"><p class="eyebrow">We're here to help</p><h1 class="mt-2 text-4xl md:text-6xl">Get in <em class="italic text-brand">touch</em>.</h1></div></section>
+<section class="bg-white border-b border-[#ecebe7]"><div class="container-x py-14 md:py-20"><p class="eyebrow">We're here to help</p><h1 class="mt-2 text-4xl md:text-6xl">Get in <em class="italic text-brand">touch</em>.</h1></div></section>
 <section class="container-x grid gap-10 py-14 lg:grid-cols-[1fr_1.3fr]">
     <div class="space-y-4">
         @foreach ([['pin', 'Visit our store', setting('store_address'), null], ['phone', 'Call us', setting('store_phone'), 'tel:'.preg_replace('/\s/', '', setting('store_phone'))], ['whatsapp', 'WhatsApp', 'Chat with an optician', 'https://wa.me/'.preg_replace('/\D/', '', setting('whatsapp_number'))], ['mail', 'Email', setting('store_email'), 'mailto:'.setting('store_email')]] as [$ic, $t, $v, $href])

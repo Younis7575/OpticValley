@@ -59,12 +59,14 @@
             </div>
             <div class="grid grid-cols-2 gap-4 {{ ['', 'md:grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3'][$collections->count()] ?? 'md:grid-cols-4' }} md:gap-5" data-gsap="stagger">
                 @foreach ($collections as $c)
-                    <a href="{{ $c->url }}" class="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-[1.6rem] bg-[#f7f6f2] p-5 md:p-6">
+                    <a href="{{ $c->url }}" class="lux-card group relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-5 md:p-6">
+                        <span class="pointer-events-none absolute -right-16 -top-16 size-44 rounded-full bg-[radial-gradient(circle,rgba(232,211,162,.45),transparent_70%)] opacity-0 transition duration-700 group-hover:opacity-100"></span>
+                        <span class="absolute bottom-5 left-6 font-display text-[4.5rem] leading-none text-[#151515]/[.04]">0{{ $loop->iteration }}</span>
                         <div class="flex items-start justify-between">
                             <div><h3 class="text-2xl md:text-[1.7rem]">{{ $c->name }}</h3><p class="mt-1 text-xs text-muted">{{ $c->count }} {{ \Illuminate\Support\Str::plural('style', $c->count) }}</p></div>
-                            <span class="grid size-10 place-items-center rounded-full bg-white transition group-hover:bg-[#151515] group-hover:text-white"><x-icon name="arrow-right" class="size-4 -rotate-45 transition group-hover:rotate-0"/></span>
+                            <span class="grid size-10 place-items-center rounded-full border border-[#ecebe7] transition group-hover:border-[#151515] group-hover:bg-[#151515] group-hover:text-[#e8d3a2]"><x-icon name="arrow-right" class="size-4 -rotate-45 transition group-hover:rotate-0"/></span>
                         </div>
-                        @if ($c->image)<img src="{{ $c->image }}" alt="{{ $c->name }} eyewear" loading="lazy" class="mx-auto w-[92%] transition duration-700 group-hover:-translate-y-2 group-hover:scale-105">@endif
+                        @if ($c->image)<img src="{{ $c->image }}" alt="{{ $c->name }} eyewear" loading="lazy" class="relative mx-auto w-[92%] drop-shadow-[0_18px_18px_rgba(0,0,0,.12)] transition duration-700 group-hover:-translate-y-2 group-hover:scale-105">@endif
                     </a>
                 @endforeach
             </div>
@@ -73,11 +75,11 @@
 
     {{-- 4 · TRENDING / BEST SELLERS --}}
     @if ($featured->isNotEmpty())
-        <section class="bg-[#f7f6f2] py-20 md:py-24" x-data="{ tab: 'best' }">
+        <section class="py-20 md:py-24" x-data="{ tab: 'best' }">
             <div class="container-x">
                 <div class="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
                     <div><p class="eyebrow mb-2">Trending now</p><h2 class="text-4xl md:text-[3rem]" data-gsap="words">Most-loved frames.</h2></div>
-                    <div class="flex gap-1 rounded-full bg-white p-1 text-sm font-semibold shadow-sm" role="tablist">
+                    <div class="flex gap-1 rounded-full border border-[#ecebe7] bg-white p-1 text-sm font-semibold shadow-[0_12px_30px_-22px_rgba(0,0,0,.35)]" role="tablist">
                         @foreach (['best' => 'Best Sellers', 'new' => 'New Arrivals', 'featured' => 'Featured'] as $key => $label)
                             <button role="tab" :aria-selected="tab === '{{ $key }}'" @click="tab = '{{ $key }}'" class="rounded-full px-5 py-2.5 transition" :class="tab === '{{ $key }}' ? 'bg-[#151515] text-white' : 'text-muted hover:text-ink'">{{ $label }}</button>
                         @endforeach
@@ -122,20 +124,20 @@
                 <p class="mt-5 max-w-md text-muted">Pick the face shape closest to yours to see styles that usually balance it. This is style guidance only — not medical or optical advice. When in doubt, try any frame on virtually or visit our studio.</p>
                 <div class="mt-8 grid grid-cols-2 gap-3" role="tablist">
                     @foreach ($faces as $i => [$face])
-                        <button type="button" role="tab" @click="f = {{ $i }}" :aria-selected="f === {{ $i }}" class="rounded-2xl border px-5 py-4 text-left text-sm font-semibold transition" :class="f === {{ $i }} ? 'border-[#151515] bg-[#151515] text-white' : 'border-line hover:border-[#b69a70]'">{{ $face }}</button>
+                        <button type="button" role="tab" @click="f = {{ $i }}" :aria-selected="f === {{ $i }}" class="rounded-2xl border px-5 py-4 text-left text-sm font-semibold transition duration-300" :class="f === {{ $i }} ? 'border-[#151515] bg-[#151515] text-[#e8d3a2] shadow-[0_18px_36px_-20px_rgba(0,0,0,.6)]' : 'border-[#ecebe7] bg-white hover:border-[#b69a70]'">{{ $face }}</button>
                     @endforeach
                 </div>
             </div>
             <div>
                 @foreach ($faces as $i => [$face, $tip, $recommended])
                     @php $available = collect($recommended)->filter(fn ($s) => isset($shapes[$s])); @endphp
-                    <div x-show="f === {{ $i }}" @if ($i) x-cloak @endif x-transition.opacity class="rounded-[2rem] bg-[#f7f6f2] p-6 md:p-10">
+                    <div x-show="f === {{ $i }}" @if ($i) x-cloak @endif x-transition.opacity class="lux-card relative p-6 md:p-10">
                         <p class="font-display text-2xl">{{ $face }}</p>
                         <p class="mt-1 text-muted">{{ $tip }}</p>
                         <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
                             @forelse ($available as $shape)
-                                <a href="{{ route('shop', ['shape' => [$shape]]) }}" class="group flex flex-col items-center rounded-2xl bg-white px-4 py-6 ring-1 ring-line transition hover:-translate-y-1 hover:ring-[#b69a70]">
-                                    <svg viewBox="0 0 64 40" class="h-10 w-auto text-ink" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round">{!! $shapeSvg[$shape] !!}</svg>
+                                <a href="{{ route('shop', ['shape' => [$shape]]) }}" class="group flex flex-col items-center rounded-2xl border border-[#ecebe7] bg-white px-4 py-6 transition duration-500 hover:-translate-y-1 hover:border-[#151515] hover:bg-[#151515] hover:text-white">
+                                    <svg viewBox="0 0 64 40" class="h-10 w-auto text-ink transition group-hover:text-[#e8d3a2]" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round">{!! $shapeSvg[$shape] !!}</svg>
                                     <span class="mt-3 text-sm font-semibold">{{ ucwords(str_replace('-', ' ', $shape)) }}</span>
                                     <span class="text-xs text-muted">{{ $shapes[$shape] }} {{ \Illuminate\Support\Str::plural('style', $shapes[$shape]) }}</span>
                                 </a>
@@ -165,10 +167,10 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4" data-gsap="stagger">
                     @foreach ($tryOnFrames as $p)
-                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('tryon:open', { detail: { id: {{ $p->id }} } }))" class="group rounded-[1.4rem] bg-white p-4 text-left text-ink transition hover:-translate-y-1">
-                            <img src="{{ $p->image_url }}" alt="{{ $p->name }}" loading="lazy" class="aspect-[4/3] w-full object-contain transition group-hover:scale-105">
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('tryon:open', { detail: { id: {{ $p->id }} } }))" class="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[.04] p-4 text-left text-white backdrop-blur transition duration-500 hover:-translate-y-1 hover:border-[#b69a70]/60 hover:bg-white/[.07]">
+                            <span class="block rounded-2xl bg-white p-2"><img src="{{ $p->image_url }}" alt="{{ $p->name }}" loading="lazy" class="aspect-[4/3] w-full object-contain transition duration-700 group-hover:scale-105"></span>
                             <span class="mt-2 block truncate text-sm font-semibold">{{ $p->name }}</span>
-                            <span class="text-xs text-muted">Tap to try on · {{ money($p->final_price) }}</span>
+                            <span class="mt-0.5 flex items-center justify-between text-xs text-white/55">{{ money($p->final_price) }} <span class="inline-flex items-center gap-1 font-semibold text-[#e8d3a2]"><x-icon name="eye" class="size-3.5"/> Try on</span></span>
                         </button>
                     @endforeach
                 </div>
@@ -181,8 +183,8 @@
         <div class="text-center"><p class="eyebrow mb-3">Prescription made simple</p><h2 class="mx-auto max-w-2xl text-4xl md:text-[3rem]" data-gsap="words">Your prescription, in three easy steps.</h2></div>
         <ol class="mt-14 grid gap-5 md:grid-cols-3" data-gsap="stagger">
             @foreach ([['Choose your frame', 'Browse '.$stats['products'].' frames marked "Rx ready", from '.money($stats['from']).'.', route('shop', ['rx' => 1]), 'Browse frames'], ['Select your lenses', 'Single vision, blue-light, anti-glare, photochromic or progressive — prices shown upfront.', '#', null], ['Add your prescription', 'Type SPH / CYL / AXIS values or upload a photo or PDF. Our optician confirms before fitting.', '#', null]] as $n => [$t, $d, $href, $cta])
-                <li class="relative rounded-[1.75rem] border border-line bg-white p-8">
-                    <span class="font-display text-6xl text-[#b69a70]/40">0{{ $n + 1 }}</span>
+                <li class="lux-card relative overflow-hidden p-8"><span class="absolute inset-x-0 top-0 h-1 gold-grad opacity-80"></span>
+                    <span class="font-display text-6xl text-gold-grad">0{{ $n + 1 }}</span>
                     <h3 class="mt-4 font-sans text-lg font-semibold tracking-normal">{{ $t }}</h3>
                     <p class="mt-2 text-sm leading-relaxed text-muted">{{ $d }}</p>
                     @if ($cta)<a href="{{ $href }}" class="mt-5 inline-flex items-center gap-2 text-sm font-bold">{{ $cta }} <x-icon name="arrow-right" class="size-4"/></a>@endif
@@ -212,7 +214,7 @@
     </section>
 
     {{-- 10 · TRUST & SERVICE (verified policies only) --}}
-    <section class="border-y border-line bg-[#f7f6f2] py-16">
+    <section class="py-16">
         <div class="container-x grid gap-8 sm:grid-cols-2 lg:grid-cols-5" data-gsap="stagger">
             @foreach ([
                 ['truck', 'Delivery', setting('shipping_note', 'Delivered in 2–5 working days.').' Free over '.money(setting('free_shipping_threshold', 5000)).'.', route('page.show', 'shipping-policy')],
@@ -221,8 +223,8 @@
                 ['shield', 'Warranty', '6-month frame warranty against manufacturing defects.', route('page.show', 'return-refund-policy')],
                 ['whatsapp', 'Support', 'WhatsApp '.setting('store_phone').' · '.setting('store_hours'), route('contact')],
             ] as [$ic, $t, $d, $href])
-                <a href="{{ $href }}" class="group">
-                    <span class="grid size-12 place-items-center rounded-full bg-white text-ink ring-1 ring-line transition group-hover:bg-[#151515] group-hover:text-[#e8d3a2]"><x-icon :name="$ic" class="size-5"/></span>
+                <a href="{{ $href }}" class="lux-card group relative block p-6">
+                    <span class="grid size-12 place-items-center rounded-full bg-[#151515] text-[#e8d3a2] transition group-hover:gold-grad group-hover:text-ink"><x-icon :name="$ic" class="size-5"/></span>
                     <p class="mt-4 font-semibold">{{ $t }}</p><p class="mt-1 text-sm leading-relaxed text-muted">{{ $d }}</p>
                 </a>
             @endforeach
@@ -234,7 +236,7 @@
             <x-section-head eyebrow="Genuine reviews" title="What customers say"/>
             <div class="grid gap-5 md:grid-cols-3">
                 @foreach ($testimonials->take(3) as $t)
-                    <figure class="rounded-[1.6rem] border border-line p-7"><x-stars :rating="$t->rating" size="size-4"/><blockquote class="mt-4 font-display text-lg leading-snug">“{{ $t->body }}”</blockquote><figcaption class="mt-5 text-sm font-semibold">{{ $t->name }}</figcaption></figure>
+                    <figure class="lux-card relative p-7"><x-stars :rating="$t->rating" size="size-4"/><blockquote class="mt-4 font-display text-lg leading-snug">“{{ $t->body }}”</blockquote><figcaption class="mt-5 text-sm font-semibold">{{ $t->name }}</figcaption></figure>
                 @endforeach
             </div>
         </section>
