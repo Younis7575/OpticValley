@@ -32,3 +32,6 @@ Thumbs.db
 /OpticValley_Claude_Master_Prompt.md
 /release.tar.gz
 /public/mediapipe
+/marketing/ad-30s/out
+/marketing/ad-30s/frames*
+/marketing/**/*.mp4

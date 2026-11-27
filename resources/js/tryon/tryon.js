@@ -59,7 +59,7 @@ export function createTryOn({ canvas, video, frames, onStatus }) {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
         } catch (e) {
-            const msg = e.name === 'NotAllowedError' ? 'Camera permission was denied. Allow camera access in your browser settings, or upload a photo instead.'
+            const msg = e.name === 'NotAllowedError' ? 'Camera access is blocked. Tap the lock icon next to the address bar → Permissions → Camera → Allow, then try again — or upload a photo instead.'
                 : e.name === 'NotFoundError' ? 'No camera was found on this device. You can upload a photo instead.'
                 : 'The camera could not be started. Close other apps using it, or upload a photo instead.';
             status('error', msg); return;

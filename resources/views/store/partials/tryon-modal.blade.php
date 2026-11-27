@@ -31,7 +31,16 @@
                     <video x-ref="video" playsinline muted class="hidden"></video>
                     <canvas x-ref="canvas" x-show="state !== 'intro'" class="max-h-[70vh] w-full object-contain"></canvas>
                     <div x-show="state === 'loading' || state === 'noface' || state === 'error'" class="absolute inset-x-4 bottom-4 rounded-2xl px-4 py-3 text-center text-sm"
-                         :class="state === 'error' ? 'bg-sale text-white' : 'bg-white/90 text-ink'" role="status" aria-live="polite" x-text="message"></div>
+                         :class="state === 'error' ? 'bg-sale text-white' : 'bg-white/90 text-ink'" role="status" aria-live="polite">
+                        <p x-text="message"></p>
+                        <div x-show="state === 'error'" class="mt-3 flex flex-wrap justify-center gap-2">
+                            <button type="button" @click="startCamera()" class="rounded-full bg-white px-4 py-2 text-xs font-bold text-ink">Try camera again</button>
+                            <label class="cursor-pointer rounded-full border border-white/70 px-4 py-2 text-xs font-bold text-white">
+                                Upload a photo
+                                <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" @change="usePhoto($event.target.files[0]); $event.target.value = ''">
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-4 p-5">

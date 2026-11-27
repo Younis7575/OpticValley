@@ -77,4 +77,11 @@ class OpticValley2Test extends TestCase
         $this->put('/admin/settings/seo', ['ga4_measurement_id' => 'G-ABC1234'])->assertSessionHas('success');
         $this->get('/')->assertSee('googletagmanager.com/gtag/js?id=G-ABC1234', false);
     }
+
+    public function test_permissions_policy_allows_camera_for_virtual_try_on(): void
+    {
+        $header = $this->get('/')->headers->get('Permissions-Policy');
+        $this->assertStringContainsString('camera=(self)', $header);
+        $this->assertStringContainsString('microphone=()', $header);
+    }
 }
