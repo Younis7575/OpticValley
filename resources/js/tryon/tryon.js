@@ -29,18 +29,36 @@ function loadImg(src) {
     return imgCache.get(src);
 }
 
-/** Draws the frame overlay using eye corners (33/263), face edges (234/454) and nose bridge (168). */
-function drawGlasses(ctx, lm, img, frame, W, H, mirror) {
+/**
+ * Draws the frame overlay. Uses the outer eye corners (33/263) and eye centres
+ * (iris 468/473 when available, else eye-corner midpoints) for position and roll,
+ * and the face edges (234/454) for width. Works for mirrored (selfie) and
+ * non-mirrored video because left/right are decided on screen, not by landmark id.
+ */
+export function placement(lm, W, H, mirror, frame, imgW, imgH) {
     const P = (i) => ({ x: (mirror ? 1 - lm[i].x : lm[i].x) * W, y: lm[i].y * H });
-    const L = P(234), R = P(454), eL = P(33), eR = P(263), bridge = P(168);
-    const faceW = Math.hypot(R.x - L.x, R.y - L.y);
-    const angle = Math.atan2(eR.y - eL.y, eR.x - eL.x);
-    const w = faceW * 1.02 * (frame.scale || 1);
-    const h = w * (img.naturalHeight / img.naturalWidth);
+    const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    let a = P(33), b = P(263);                      // outer eye corners
+    let ca = lm[468] ? P(468) : mid(P(33), P(133));  // eye centres
+    let cb = lm[473] ? P(473) : mid(P(263), P(362));
+    if (a.x > b.x) { [a, b] = [b, a]; [ca, cb] = [cb, ca]; } // a = screen-left eye
+    const faceL = P(234), faceR = P(454);
+    const faceW = Math.hypot(faceR.x - faceL.x, faceR.y - faceL.y);
+    const angle = Math.atan2(b.y - a.y, b.x - a.x);   // always within ±90° → never upside down
+    const centre = mid(ca, cb);
+    const w = faceW * 0.98 * (frame.scale || 1);
+    const h = w * (imgH / imgW);
+    // lens centres sit ~45% down the overlay image
+    const ox = (frame.dx || 0) * w, oy = h * (0.05 + (frame.dy || 0));
+    return { x: centre.x + Math.cos(angle) * ox - Math.sin(angle) * oy, y: centre.y + Math.sin(angle) * ox + Math.cos(angle) * oy, angle, w, h };
+}
+
+function drawGlasses(ctx, lm, img, frame, W, H, mirror) {
+    const p = placement(lm, W, H, mirror, frame, img.naturalWidth, img.naturalHeight);
     ctx.save();
-    ctx.translate(bridge.x + (frame.dx || 0) * w, bridge.y + (frame.dy || 0) * h);
-    ctx.rotate(angle);
-    ctx.drawImage(img, -w / 2, -h * 0.42, w, h);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+    ctx.drawImage(img, -p.w / 2, -p.h / 2, p.w, p.h);
     ctx.restore();
 }
 
