@@ -58,9 +58,9 @@ export function buildEyewear({ frameColor = 0x050505, lensTint = 0x6b4424, accen
         armShape.lineTo(3.08, -0.38); armShape.quadraticCurveTo(2.9, -0.08, 2.6, -0.1); armShape.lineTo(0, -0.14); armShape.lineTo(0, 0);
         const armGeo = new THREE.ExtrudeGeometry(armShape, { depth: 0.06, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 2, curveSegments: 16 });
         const arm = new THREE.Mesh(armGeo, frameMat);
-        arm.rotation.y = side > 0 ? -Math.PI / 2 + 0.08 : Math.PI / 2 - 0.08;
-        arm.position.set(side * (W + gap / 2 + 0.15), 0.4, 0.0);
-        if (side < 0) arm.position.z = 0.06;
+        // both temples run backwards (-z) with a slight outward splay
+        arm.rotation.y = Math.PI / 2 - side * 0.08;
+        arm.position.set(side * (W + gap / 2 + 0.15) - 0.03, 0.4, 0.0);
         group.add(arm);
         // metal accent on temple
         const pin = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.55), metalMat);
