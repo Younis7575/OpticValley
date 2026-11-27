@@ -35,6 +35,10 @@
         'sameAs' => array_values(array_filter([setting('social_instagram'), setting('social_facebook'), setting('social_tiktok'), setting('social_youtube')])),
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @stack('head')
+    @if (setting('ga4_measurement_id'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ setting('ga4_measurement_id') }}"></script>
+        <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',@js(setting('ga4_measurement_id')),{anonymize_ip:true});</script>
+    @endif
     <script>window.__flash = @json(collect(['success', 'error'])->filter(fn ($t) => session($t))->map(fn ($t) => ['type' => $t, 'message' => session($t)])->values());</script>
 </head>
 <body class="min-h-screen" x-data="{ menu: false, search: false }" @keydown.escape.window="menu = false; search = false">
@@ -106,10 +110,19 @@
     {{-- Search overlay --}}
     <div x-cloak x-show="search" x-transition.opacity class="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm" @click.self="search = false">
         <div x-show="search" x-transition:enter="transition duration-300" x-transition:enter-start="-translate-y-6 opacity-0" class="bg-paper shadow-2xl">
-            <form action="{{ route('shop') }}" class="container-x flex items-center gap-4 py-6">
+            <form action="{{ route('shop') }}" class="container-x relative flex items-center gap-4 py-6" x-data="searchSuggest" @submit="window.ovTrack && ovTrack('search', { search_term: q })">
                 <x-icon name="search" class="size-6 text-muted"/>
-                <input x-ref="q" name="q" type="search" placeholder="Search frames, sunglasses, brands…" class="w-full bg-transparent font-display text-2xl outline-none placeholder:text-muted/60 md:text-3xl" autocomplete="off">
+                <input x-ref="q" name="q" type="search" x-model="q" @input="fetch()" role="combobox" aria-autocomplete="list" :aria-expanded="items.length > 0" placeholder="Search frames, sunglasses, brands…" class="w-full bg-transparent font-display text-2xl outline-none placeholder:text-muted/60 md:text-3xl" autocomplete="off">
                 <button type="button" @click="search = false" class="grid size-10 shrink-0 place-items-center rounded-full hover:bg-sand" aria-label="Close search"><x-icon name="x"/></button>
+                <ul x-show="items.length" x-cloak class="absolute inset-x-4 top-full z-10 overflow-hidden rounded-2xl border border-line bg-white shadow-2xl sm:inset-x-6 lg:inset-x-10" role="listbox">
+                    <template x-for="it in items" :key="it.url">
+                        <li role="option"><a :href="it.url" class="flex items-center gap-4 px-4 py-3 hover:bg-[#f7f6f2]">
+                            <img :src="it.image" alt="" class="h-12 w-16 rounded-lg object-contain ring-1 ring-line">
+                            <span class="flex-1"><span class="block text-sm font-semibold" x-text="it.name"></span><span class="text-xs text-muted" x-text="it.brand"></span></span>
+                            <span class="text-sm font-bold" x-text="it.price"></span>
+                        </a></li>
+                    </template>
+                </ul>
             </form>
             <div class="container-x flex flex-wrap gap-2 pb-6">
                 <span class="mr-2 self-center text-xs font-semibold uppercase tracking-widest text-muted">Popular</span>
@@ -222,6 +235,17 @@
             <svg viewBox="0 0 32 32" class="size-7" fill="currentColor"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3Zm0 23.7c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.7 10.7 0 1 1 16 26.7Zm5.9-8c-.3-.2-1.9-1-2.2-1s-.5-.2-.7.1-.8 1-1 1.2-.4.2-.7 0a8.8 8.8 0 0 1-4.4-3.8c-.3-.6.3-.5 1-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.7 5c2.1.9 2.9 1 4 .8.6-.1 1.9-.8 2.2-1.5s.3-1.4.2-1.5-.3-.3-.6-.4Z"/></svg>
         </a>
     @endif
+
+    {{-- Quick view --}}
+    <div x-data="quickView" @quickview.window="open($event.detail)" @keydown.escape.window="close()">
+        <div x-cloak x-show="show" x-transition.opacity class="fixed inset-0 z-[65] flex items-end justify-center bg-[#0e0d0c]/60 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Quick view">
+            <div class="relative max-h-[92dvh] w-full max-w-4xl overflow-y-auto bg-white sm:rounded-[1.75rem]" @click.outside="close()">
+                <button type="button" @click="close()" class="absolute right-4 top-4 z-10 grid size-10 place-items-center rounded-full bg-white shadow hover:bg-sand" aria-label="Close quick view"><x-icon name="x"/></button>
+                <div x-show="loading" class="grid h-72 place-items-center text-sm text-muted">Loading…</div>
+                <div x-html="html"></div>
+            </div>
+        </div>
+    </div>
 
     {{-- Toasts --}}
     <div x-data="toasts" class="pointer-events-none fixed inset-x-0 top-20 z-[60] flex flex-col items-center gap-2 px-4">

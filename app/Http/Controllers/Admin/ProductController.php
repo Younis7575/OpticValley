@@ -116,7 +116,7 @@ class ProductController extends Controller
 
     private function payload(ProductRequest $request, ?Product $product = null): array
     {
-        $data = $request->safe()->except(['images', 'variants', 'extra_categories', 'spec_keys', 'spec_values', 'image_order', 'image_alt']);
+        $data = $request->safe()->except(['images', 'variants', 'extra_categories', 'spec_keys', 'spec_values', 'image_order', 'image_alt', 'tryon_overlay_file']);
         $data['slug'] = Str::slug($data['slug'] ?: $data['name']);
         $data['description'] = Html::clean($data['description'] ?? '');
         $specs = [];
@@ -126,7 +126,17 @@ class ProductController extends Controller
             }
         }
         $data['specifications'] = $specs ?: null;
-        foreach (['prescription_enabled', 'is_featured', 'is_best_seller', 'is_new', 'is_active'] as $flag) {
+        foreach (['tryon_scale' => 1, 'tryon_offset_x' => 0, 'tryon_offset_y' => 0] as $k => $def) {
+            $data[$k] = (float) ($data[$k] ?? $def);
+        }
+        if ($request->hasFile('tryon_overlay_file')) {
+            Media::delete($product?->tryon_overlay);
+            $data['tryon_overlay'] = Media::store($request->file('tryon_overlay_file'), 'tryon');
+        } elseif ($request->boolean('remove_tryon_overlay')) {
+            Media::delete($product?->tryon_overlay);
+            $data['tryon_overlay'] = null;
+        }
+        foreach (['prescription_enabled', 'tryon_enabled', 'is_featured', 'is_best_seller', 'is_new', 'is_active'] as $flag) {
             $data[$flag] = $request->boolean($flag);
         }
 

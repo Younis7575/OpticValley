@@ -37,6 +37,13 @@ class PageController extends Controller
         ]);
     }
 
+    public function tryOn()
+    {
+        return view('store.pages.tryon', [
+            'frames' => Product::active()->where('tryon_enabled', true)->whereNotNull('tryon_overlay')->with(['images', 'brand'])->get(),
+        ]);
+    }
+
     public function contact()
     {
         return view('store.pages.contact');

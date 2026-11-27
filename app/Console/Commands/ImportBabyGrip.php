@@ -78,6 +78,13 @@ class ImportBabyGrip extends Command
                     $created++;
                     $product->categories()->sync(array_filter([$rx]));
                 }
+                if (File::exists(database_path("seeders/assets/baby-grip-tryon/$code.png"))) {
+                    File::ensureDirectoryExists(public_path('uploads/tryon'));
+                    File::copy(database_path("seeders/assets/baby-grip-tryon/$code.png"), public_path("uploads/tryon/$code.png"));
+                    if (! $product->tryon_overlay) {
+                        $product->update(['tryon_enabled' => true, 'tryon_overlay' => "uploads/tryon/$code.png", 'tryon_scale' => 1.0]);
+                    }
+                }
                 $img = $product->images()->orderBy('sort_order')->first();
                 $img ? $img->update(['path' => "$dest/$code.webp"])
                     : $product->images()->create(['path' => "$dest/$code.webp", 'alt' => "$name kids eyeglasses frame", 'sort_order' => 0]);

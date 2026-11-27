@@ -20,6 +20,10 @@
                 <span class="rounded-full bg-ink/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Sold out</span>
             @endif
         </div>
+        <div class="absolute bottom-3 left-3 flex gap-1.5">
+            @if ($product->hasTryOn())<span class="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink shadow-sm backdrop-blur">Try-on</span>@endif
+        </div>
+        <button type="button" onclick="window.dispatchEvent(new CustomEvent('quickview', { detail: '{{ route('product.quick', $product) }}' }))" class="absolute right-3 top-14 grid size-9 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition hover:scale-110 focus:opacity-100 group-hover:opacity-100 max-lg:hidden" aria-label="Quick view {{ $product->name }}"><x-icon name="eye" class="size-[18px]"/></button>
         <button type="button" x-data="wishlistToggle('{{ route('wishlist.toggle', $product) }}', {{ $wishlisted ? 'true' : 'false' }}, {{ auth()->check() ? 'true' : 'false' }})" @click="toggle"
                 class="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-ink shadow-sm backdrop-blur transition hover:scale-110" :aria-pressed="on" aria-label="Add to wishlist">
             <x-icon name="heart" class="size-[18px]" ::class="on ? 'fill-sale text-sale' : ''"/>

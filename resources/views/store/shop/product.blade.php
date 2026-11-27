@@ -76,6 +76,7 @@
                          class="aspect-[4/3.3] w-full object-contain p-4 transition-transform duration-300" :style="zoom ? `transform: scale(1.8); transform-origin: ${x}% ${y}%` : ''" @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif>
                 @endforeach
                 @if ($product->images->isEmpty())<img src="{{ asset('images/placeholder.svg') }}" alt="" class="aspect-[4/3.3] w-full object-cover">@endif
+                <button type="button" @click.stop="$dispatch('gallery-full', img)" class="absolute bottom-4 right-4 grid size-10 place-items-center rounded-full bg-white/95 shadow ring-1 ring-line hover:scale-110" aria-label="View image fullscreen"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
                 <div class="pointer-events-none absolute left-5 top-5 flex gap-2">
                     @if ($product->hasDiscount())<span class="rounded-full bg-sale px-3 py-1 text-xs font-bold text-white">-{{ $product->discount_percent }}%</span>@endif
                     @if ($product->is_new)<span class="rounded-full bg-white px-3 py-1 text-xs font-bold">New</span>@endif
@@ -104,7 +105,7 @@
         </div>
         @if ($product->short_description)<p class="mt-4 leading-relaxed text-ink-2">{{ $product->short_description }}</p>@endif
 
-        <form action="{{ route('cart.add', $product) }}" method="POST" enctype="multipart/form-data" class="mt-8 space-y-7">
+        <form action="{{ route('cart.add', $product) }}" method="POST" enctype="multipart/form-data" class="mt-8 space-y-7" @submit="window.ovTrack('add_to_cart', { item_id: @js($product->sku), quantity: qty, value: unit * qty, currency: @js(setting('currency_code', 'PKR')) })">
             @csrf
             {{-- Colour --}}
             @if ($variants->isNotEmpty())
@@ -207,6 +208,25 @@
             </div>
         </form>
 
+        @if ($product->hasTryOn())
+            <button type="button" onclick="window.dispatchEvent(new CustomEvent('tryon:open', { detail: { id: {{ $product->id }} } }))" class="mt-4 flex w-full items-center justify-center gap-3 rounded-2xl border border-[#b69a70]/50 bg-[#f7f6f2] px-5 py-4 text-sm font-semibold transition hover:border-ink">
+                <span class="grid size-9 place-items-center rounded-full bg-[#101113] text-[#e8d3a2]"><x-icon name="eye" class="size-4"/></span>
+                Try it on with your camera <span class="text-xs font-normal text-muted">· private, on-device</span>
+            </button>
+        @else
+            <div class="mt-4 rounded-2xl border border-line px-5 py-4 text-sm">
+                <p class="font-semibold">Virtual Try-On not available for this frame</p>
+                @if ($tryOnAlternatives->isNotEmpty())
+                    <p class="mt-1 text-xs text-muted">Try these compatible frames instead:</p>
+                    <div class="mt-3 flex gap-2">
+                        @foreach ($tryOnAlternatives as $alt)
+                            <a href="{{ route('product.show', $alt) }}" class="w-1/4 rounded-xl bg-white p-1 ring-1 ring-line hover:ring-[#b69a70]" title="{{ $alt->name }}"><img src="{{ $alt->image_url }}" alt="{{ $alt->name }}" class="aspect-[4/3] w-full object-contain"></a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endif
+
         <ul class="mt-8 grid grid-cols-3 gap-3 text-center text-[11px] font-semibold text-muted">
             <li class="rounded-2xl bg-sand/70 p-3"><x-icon name="truck" class="mx-auto mb-1.5 size-5 text-ink"/>Free delivery over {{ money(setting('free_shipping_threshold', 5000)) }}</li>
             <li class="rounded-2xl bg-sand/70 p-3"><x-icon name="refresh" class="mx-auto mb-1.5 size-5 text-ink"/>7-day easy returns</li>
@@ -294,6 +314,28 @@
         </div>
     </div>
 </section>
+
+<section class="container-x pb-12" x-data="{ items: window.ovRecent.read().filter(i => i.url !== @js(route('product.show', $product))).slice(0, 4) }" x-init="window.ovRecent.push({ url: @js(route('product.show', $product)), name: @js($product->name), price: @js(money($product->final_price)), image: @js($product->image_url) }); window.ovTrack('view_item', { item_id: @js($product->sku), item_name: @js($product->name), value: {{ $product->final_price }}, currency: @js(setting('currency_code', 'PKR')) })" x-show="items.length" x-cloak>
+    <x-section-head eyebrow="Recently viewed" title="Pick up where you left off"/>
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <template x-for="it in items" :key="it.url">
+            <a :href="it.url" class="group block"><div class="rounded-[1.2rem] bg-white p-3 ring-1 ring-line transition group-hover:ring-[#b69a70]"><img :src="it.image" :alt="it.name" class="aspect-[4/3] w-full object-contain"></div><p class="mt-2 text-sm font-semibold" x-text="it.name"></p><p class="text-sm" x-text="it.price"></p></a>
+        </template>
+    </div>
+</section>
+
+<div x-data="{ open: false, i: 0, imgs: {{ Js::from($product->images->map(fn ($im) => ['src' => $im->url, 'alt' => $im->alt ?? $product->name])->values()) }} }" @gallery-full.window="i = $event.detail; open = true" @keydown.escape.window="open = false" @keydown.arrow-right.window="if (open) i = (i + 1) % imgs.length" @keydown.arrow-left.window="if (open) i = (i - 1 + imgs.length) % imgs.length">
+    <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-[70] grid place-items-center bg-white" role="dialog" aria-modal="true" aria-label="Image viewer">
+        <button type="button" @click="open = false" class="absolute right-5 top-5 grid size-11 place-items-center rounded-full ring-1 ring-line hover:bg-sand" aria-label="Close"><x-icon name="x"/></button>
+        <template x-if="imgs.length"><img :src="imgs[i].src" :alt="imgs[i].alt" class="max-h-[88vh] max-w-[94vw] object-contain"></template>
+        <div class="absolute bottom-6 flex gap-2" x-show="imgs.length > 1">
+            <button type="button" @click="i = (i - 1 + imgs.length) % imgs.length" class="grid size-11 place-items-center rounded-full ring-1 ring-line" aria-label="Previous image"><x-icon name="chevron-left" class="size-4"/></button>
+            <button type="button" @click="i = (i + 1) % imgs.length" class="grid size-11 place-items-center rounded-full ring-1 ring-line" aria-label="Next image"><x-icon name="chevron-right" class="size-4"/></button>
+        </div>
+    </div>
+</div>
+
+@include('store.partials.tryon-modal')
 
 @if ($related->isNotEmpty())
     <section class="container-x pb-20">

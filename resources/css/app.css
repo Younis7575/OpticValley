@@ -8,19 +8,19 @@
     --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Fraunces', ui-serif, Georgia, serif;
 
-    --color-ink: #0e0d0c;
+    --color-ink: #151515;
     --color-ink-2: #2b2723;
     --color-paper: #ffffff;
-    --color-sand: #f8f5ef;
+    --color-sand: #f7f6f2;
     --color-sand-2: #e9dfcd;
-    --color-line: #ece5d8;
-    --color-muted: #75706a;
+    --color-line: #e8e5de;
+    --color-muted: #77736c;
     --color-brand: #8f6a2f;
     --color-brand-600: #6f5122;
     --color-brand-50: #f6eedf;
-    --color-gold: #b8914f;
+    --color-gold: #b69a70;
     --color-gold-light: #e8d3a2;
-    --color-onyx: #121110;
+    --color-onyx: #101113;
     --color-sale: #a8322a;
 
     --ease-out-soft: cubic-bezier(.22, .8, .28, 1);

@@ -130,6 +130,19 @@
                     </form>
                 </div>
 
+                @php
+                    $chipLabels = ['gender' => fn ($v) => \App\Models\Product::GENDERS[$v] ?? $v, 'brand' => fn ($v) => $facets['brands']->firstWhere('id', $v)?->name ?? $v, 'shape' => fn ($v) => ucwords(str_replace('-', ' ', $v)), 'type' => fn ($v) => \App\Models\Product::FRAME_TYPES[$v] ?? $v, 'material' => fn ($v) => ucwords($v), 'color' => fn ($v) => ucwords($v)];
+                    $chips = [];
+                    foreach ($chipLabels as $k => $fmt) { foreach ($selected($k) as $v) { $q = request()->except('page'); $q[$k] = array_values(array_diff((array) ($q[$k] ?? []), [$v])); $chips[] = [$fmt($v), url()->current().'?'.http_build_query(array_filter($q, fn ($x) => $x !== [] && $x !== null && $x !== ''))]; } }
+                    foreach (['sale' => 'On sale', 'in_stock' => 'In stock', 'rx' => 'Prescription ready'] as $k => $l) { if (request($k)) { $chips[] = [$l, url()->current().'?'.http_build_query(request()->except([$k, 'page']))]; } }
+                    if (request('min') || request('max')) { $chips[] = [money(request('min', 0)).' – '.(request('max') ? money(request('max')) : 'any'), url()->current().'?'.http_build_query(request()->except(['min', 'max', 'page']))]; }
+                @endphp
+                @if ($chips)
+                    <div class="mb-6 flex flex-wrap items-center gap-2">
+                        @foreach ($chips as [$label, $href])<a href="{{ $href }}" class="chip !bg-[#f7f6f2]" aria-label="Remove filter {{ $label }}">{{ $label }} <x-icon name="x" class="size-3"/></a>@endforeach
+                        <a href="{{ url()->current() }}{{ request('q') ? '?q='.urlencode(request('q')) : '' }}" class="text-xs font-semibold text-muted underline underline-offset-4 hover:text-ink">Clear all</a>
+                    </div>
+                @endif
                 @if ($products->isEmpty())
                     <div class="card grid place-items-center px-6 py-24 text-center">
                         <x-icon name="search" class="size-10 text-muted"/>

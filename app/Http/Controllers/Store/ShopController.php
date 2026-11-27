@@ -129,7 +129,29 @@ class ShopController extends Controller
             'inWishlist' => auth()->check() && auth()->user()->wishlist()->whereKey($product->id)->exists(),
             'wishlistIds' => auth()->user()?->wishlist()->pluck('products.id')->all() ?? [],
             'canReview' => true,
+            'tryOnAlternatives' => $product->hasTryOn() ? collect() : Product::active()->where('tryon_enabled', true)->whereNotNull('tryon_overlay')->with('primaryImage')->take(4)->get(),
         ]);
+    }
+
+    public function quick(Product $product)
+    {
+        abort_unless($product->is_active, 404);
+
+        return view('store.shop.quick', ['product' => $product->load(['images', 'brand', 'variants'])]);
+    }
+
+    public function suggest(Request $request)
+    {
+        $q = trim((string) $request->query('q'));
+        if (mb_strlen($q) < 2) {
+            return ['data' => []];
+        }
+        $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], mb_substr($q, 0, 60)).'%';
+        $items = Product::active()->with(['primaryImage', 'brand'])
+            ->where(fn ($w) => $w->where('name', 'like', $like)->orWhere('sku', 'like', $like)->orWhere('frame_shape', 'like', $like)->orWhere('frame_color', 'like', $like)->orWhereHas('brand', fn ($b) => $b->where('name', 'like', $like)))
+            ->orderByDesc('sold_count')->take(6)->get();
+
+        return ['data' => $items->map(fn ($p) => ['name' => $p->name, 'brand' => $p->brand?->name, 'price' => money($p->final_price), 'image' => $p->image_url, 'url' => route('product.show', $p)])];
     }
 
     public function review(Request $request, Product $product)

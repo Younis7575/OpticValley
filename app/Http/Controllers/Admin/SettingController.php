@@ -46,6 +46,7 @@ class SettingController extends Controller
             'social_facebook' => ['Facebook URL', 'url', 'nullable|url|max:255'],
             'social_tiktok' => ['TikTok URL', 'url', 'nullable|url|max:255'],
             'social_youtube' => ['YouTube URL', 'url', 'nullable|url|max:255'],
+            'ga4_measurement_id' => ['Google Analytics 4 Measurement ID', 'text', ['nullable', 'regex:/^G-[A-Z0-9]{4,12}$/'], 'e.g. G-XXXXXXX. Leave empty to disable analytics.'],
         ]],
         'email' => ['Email', [
             'mail_from_address' => ['From address', 'email', 'nullable|email', 'SMTP credentials are configured in the server .env file (MAIL_*), never stored in the database.'],

@@ -14,7 +14,7 @@ class Product extends Model
     protected $fillable = [
         'category_id', 'brand_id', 'name', 'slug', 'sku', 'short_description', 'description',
         'price', 'sale_price', 'stock', 'low_stock_threshold', 'gender', 'frame_shape', 'frame_type', 'frame_material',
-        'frame_color', 'frame_size', 'lens_info', 'specifications', 'prescription_enabled', 'is_featured',
+        'frame_color', 'frame_size', 'lens_info', 'specifications', 'prescription_enabled', 'tryon_enabled', 'tryon_overlay', 'tryon_scale', 'tryon_offset_x', 'tryon_offset_y', 'is_featured',
         'is_best_seller', 'is_new', 'is_active', 'meta_title', 'meta_description',
     ];
 
@@ -23,6 +23,10 @@ class Product extends Model
         'sale_price' => 'decimal:2',
         'specifications' => 'array',
         'prescription_enabled' => 'boolean',
+        'tryon_enabled' => 'boolean',
+        'tryon_scale' => 'float',
+        'tryon_offset_x' => 'float',
+        'tryon_offset_y' => 'float',
         'is_featured' => 'boolean',
         'is_best_seller' => 'boolean',
         'is_new' => 'boolean',
@@ -126,6 +130,20 @@ class Product extends Model
         $img = $this->relationLoaded('images') ? $this->images->first() : $this->primaryImage;
 
         return $img?->url;
+    }
+
+    public function hasTryOn(): bool
+    {
+        return $this->tryon_enabled && $this->tryon_overlay;
+    }
+
+    public function tryOnPayload(): array
+    {
+        return [
+            'id' => $this->id, 'name' => $this->name, 'url' => route('product.show', $this), 'price' => money($this->final_price),
+            'thumb' => $this->image_url, 'overlay' => \App\Support\Media::url($this->tryon_overlay),
+            'scale' => (float) $this->tryon_scale, 'dx' => (float) $this->tryon_offset_x, 'dy' => (float) $this->tryon_offset_y,
+        ];
     }
 
     public function recalculateRating(): void

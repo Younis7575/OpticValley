@@ -94,6 +94,24 @@
             </div>
         </section>
 
+        <section class="a-card space-y-4 p-6" x-data="{ prev: @js($product->tryon_overlay ? \App\Support\Media::url($product->tryon_overlay) : null) }">
+            <div><h2 class="font-bold">Virtual Try-On</h2><p class="text-xs text-muted">Upload a front-view PNG/WebP of this exact frame with a transparent background and see-through lenses. Only frames with an overlay show the "Try it on" button.</p></div>
+            <x-admin.toggle name="tryon_enabled" label="Enable Virtual Try-On for this frame" :checked="$product->tryon_enabled"/>
+            <div class="grid gap-4 sm:grid-cols-[200px_1fr]">
+                <label class="grid aspect-[4/3] cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-line bg-[repeating-conic-gradient(#f3f0ea_0_25%,#fff_0_50%)] bg-[length:16px_16px] text-xs text-muted hover:border-brand">
+                    <img x-show="prev" :src="prev" class="size-full object-contain" alt="">
+                    <span x-show="!prev">Upload overlay</span>
+                    <input type="file" name="tryon_overlay_file" accept="image/png,image/webp" class="sr-only" @change="const f=$event.target.files[0]; if (f) prev = URL.createObjectURL(f)">
+                </label>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    <x-admin.field name="tryon_scale" type="number" step="0.01" min="0.5" max="2" label="Width scale" :value="$product->tryon_scale ?? 1" help="1 = face width"/>
+                    <x-admin.field name="tryon_offset_x" type="number" step="0.01" min="-0.5" max="0.5" label="Horizontal offset" :value="$product->tryon_offset_x ?? 0"/>
+                    <x-admin.field name="tryon_offset_y" type="number" step="0.01" min="-0.5" max="0.5" label="Vertical offset" :value="$product->tryon_offset_y ?? 0" help="+ moves down"/>
+                    @if ($product->tryon_overlay)<label class="flex items-center gap-2 text-xs text-muted sm:col-span-3"><input type="checkbox" name="remove_tryon_overlay" value="1"> Remove current overlay</label>@endif
+                </div>
+            </div>
+        </section>
+
         <section class="a-card space-y-4 p-6">
             <h2 class="font-bold">Search engine listing</h2>
             <x-admin.field name="meta_title" label="Meta title" :value="$product->meta_title" help="Defaults to the product name."/>

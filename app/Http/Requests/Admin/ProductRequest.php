@@ -57,6 +57,10 @@ class ProductRequest extends FormRequest
             'variants.*.sku' => 'nullable|string|max:60',
             'variants.*.price_adjustment' => 'nullable|numeric|min:-999999|max:999999',
             'variants.*.stock' => 'nullable|integer|min:0',
+            'tryon_overlay_file' => 'nullable|image|mimes:png,webp|max:3072',
+            'tryon_scale' => 'nullable|numeric|between:0.5,2',
+            'tryon_offset_x' => 'nullable|numeric|between:-0.5,0.5',
+            'tryon_offset_y' => 'nullable|numeric|between:-0.5,0.5',
             'spec_keys' => 'nullable|array',
             'spec_values' => 'nullable|array',
         ];

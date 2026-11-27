@@ -20,6 +20,9 @@ Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/category/{category:slug}', [ShopController::class, 'category'])->name('category.show');
 Route::get('/brand/{brand:slug}', [ShopController::class, 'brand'])->name('brand.show');
 Route::get('/product/{product:slug}', [ShopController::class, 'product'])->name('product.show');
+Route::get('/product/{product:slug}/quick', [ShopController::class, 'quick'])->name('product.quick');
+Route::get('/search/suggest', [ShopController::class, 'suggest'])->middleware('throttle:60,1')->name('search.suggest');
+Route::get('/virtual-try-on', [PageController::class, 'tryOn'])->name('tryon');
 Route::post('/product/{product:slug}/reviews', [ShopController::class, 'review'])->middleware('throttle:forms')->name('product.review');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
