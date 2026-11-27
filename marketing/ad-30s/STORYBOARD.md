@@ -37,3 +37,22 @@ These would lift it to agency-level photorealism; none were available, so none w
 2. 3D scans / GLB models of 2–3 hero frames for true 360° turntables (Scenes 1, 3, 5) and 4K renders.
 3. Real store footage showing the actual OpticValley signage.
 4. Licensed or composed score and a professional voice artist.
+
+---
+
+# Urdu version (اردو)
+
+**Files:** `OpticValley_Ad_30s_Urdu_16x9.mp4`, `OpticValley_Ad_30s_Urdu_9x16.mp4`, `OpticValley_Ad_Urdu_Thumbnail_1920x1080.jpg` — same 30.0 s cut, Urdu headlines set in **Noto Nastaliq Urdu** (rendered with macOS CoreText for correct ligatures), subtle film grain for a filmic finish, voice with studio EQ + short reverb.
+
+Render: `AD_LANG=ur python3 render.py 1920 1080 out/frames_ur_169` · Audio: `AD_LANG=ur python3 audio.py`
+
+| Time | On-screen text (Urdu) | Voiceover (Roman Urdu) |
+|---|---|---|
+| 0–5 s | دنیا کو نئے انداز سے دیکھیں | 0.9 s "Aam se aage dekhiye." |
+| 5–10 s | وہ انداز جو آپ کی پہچان ہے | 6.0 s "Woh andaaz apnaiye, jo aap ki pehchaan hai." |
+| 10–16 s | اپنا بہترین فریم تلاش کریں | 11.0 s "Aisa chashma, jahan nafasat aur durusti ek saath milti hain." |
+| 16–21 s | درستگی ۔ آرام ۔ اعتماد | 17.2 s "Aap ki nazar. Aap ka andaaz." |
+| 21–26 s | لگژری اور ٹیکنالوجی کا حسین امتزاج | 22.4 s "OpticValley. Luxury aur technology ka haseen sangam." |
+| 26–30 s | اپنا پرفیکٹ چشمہ آج ہی چُنیں · OPTICVALLEY.CO · ابھی خریدیں | — |
+
+**Voiceover note:** macOS has no Urdu voice, so the placeholder uses the Hindustani "Lekha" voice reading the Urdu script phonetically. For a commercial release, record the Roman-Urdu lines above with a professional Pakistani Urdu voice artist (deep, warm, unhurried) and drop the audio into `audio.py`.

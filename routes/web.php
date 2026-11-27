@@ -99,6 +99,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('products', Admin\ProductController::class)->except('show');
             Route::delete('product-images/{image}', [Admin\ProductController::class, 'destroyImage'])->name('products.images.destroy');
             Route::resource('categories', Admin\CategoryController::class)->except('show');
+            Route::resource('subcategories', Admin\SubcategoryController::class)->except('show');
             Route::resource('brands', Admin\BrandController::class)->except('show');
             Route::resource('lens-options', Admin\LensOptionController::class)->except('show')->parameters(['lens-options' => 'lensOption']);
         });

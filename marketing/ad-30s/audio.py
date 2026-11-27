@@ -84,17 +84,29 @@ for st in [4.75, 9.75, 15.75, 20.75, 25.75]:
     mix[s:s + L] += lp_fast(np.pad(w, (0, 0)), 2500)[:L] * 0.25
 
 # ---- voiceover (macOS TTS, British "Daniel") ----
+LANG = os.environ.get('AD_LANG', 'en')
+VOICE, RATE = ('Lekha', '165') if LANG == 'ur' else ('Daniel', '150')
+VO_UR = [(0.9, 'आम से आगे देखिए।'), (6.0, 'वो अंदाज़ अपनाइए, जो आपकी पहचान है।'),
+         (11.0, 'ऐसा चश्मा, जहाँ नफ़ासत और दुरुस्ती एक साथ मिलती हैं।'), (17.2, 'आपकी नज़र। आपका अंदाज़।'),
+         (22.4, 'ऑप्टिक वैली। लग्ज़री और टेक्नोलॉजी का हसीन संगम।')]
 VO = [(0.9, 'See beyond ordinary.'), (6.0, 'Discover the style that defines you.'),
       (11.2, 'Experience eyewear where precision meets elegance.'), (17.2, 'Your vision. Your style.'),
       (22.6, 'OpticValley. Luxury meets technology.')]
 vo = np.zeros(N)
-for i, (st, line) in enumerate(VO):
+for i, (st, line) in enumerate(VO_UR if LANG == 'ur' else VO):
     aiff = os.path.join(OUT, f'vo{i}.aiff'); raw = os.path.join(OUT, f'vo{i}.raw')
-    subprocess.run(['say', '-v', 'Daniel', '-r', '150', '-o', aiff, line], check=True)
+    subprocess.run(['say', '-v', VOICE, '-r', RATE, '-o', aiff, line], check=True)
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', aiff, '-f', 's16le', '-ac', '1', '-ar', str(SR), raw], check=True)
     v = np.frombuffer(open(raw, 'rb').read(), dtype=np.int16).astype(float) / 32768
     s = int(st * SR); vo[s:s + len(v)] += v[:max(0, N - s)] * 0.9
     os.remove(raw); os.remove(aiff)
+
+# studio polish on the voice: gentle low-cut, presence lift and a short plate-style reverb
+vo = vo - lp_fast(vo, 120)
+vo = vo + 0.25 * (vo - lp_fast(vo, 3500))
+ir_len = int(0.9 * SR); ir = rng.standard_normal(ir_len) * np.exp(-np.arange(ir_len) / SR * 6.5); ir[0] = 0
+wet = np.fft.irfft(np.fft.rfft(vo, 2 * N) * np.fft.rfft(ir, 2 * N), 2 * N)[:N]
+vo = vo + wet / np.abs(wet).max() * np.abs(vo).max() * 0.12
 
 # duck music under voice
 venv = np.convolve(np.abs(vo), np.ones(4800) / 4800, mode='same')
@@ -103,7 +115,7 @@ final = mix * duck + vo
 final[-int(0.8 * SR):] *= np.linspace(1, 0, int(0.8 * SR))
 final = final / max(1e-6, np.abs(final).max()) * 0.89
 stereo = np.stack([final, np.roll(final, 24)], axis=1)
-with wave.open(os.path.join(OUT, 'soundtrack.wav'), 'wb') as w:
+with wave.open(os.path.join(OUT, 'soundtrack_ur.wav' if LANG == 'ur' else 'soundtrack.wav'), 'wb') as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((stereo * 32767).astype(np.int16).tobytes())
 print('soundtrack.wav written')

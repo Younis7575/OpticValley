@@ -183,4 +183,34 @@ class AdminPanelTest extends TestCase
         File::deleteDirectory(public_path('uploads/products/'.now()->format('Y')));
         parent::tearDown();
     }
+
+    public function test_categories_and_subcategories_are_managed_separately(): void
+    {
+        $this->actingAs($this->admin());
+        $this->get('/admin/categories')->assertOk()->assertSee('Eyeglasses')->assertSee('+ Subcategory');
+        $this->get('/admin/subcategories')->assertOk()->assertSee("Men's Eyeglasses");
+
+        // main category cannot be given a parent
+        $this->post('/admin/categories', ['name' => 'Sports Eyewear', 'parent_id' => 1, 'is_active' => 1])->assertSessionHasErrors('parent_id');
+        $this->post('/admin/categories', ['name' => 'Sports Eyewear', 'is_active' => 1])->assertRedirect(route('admin.categories.index'));
+        $parent = \App\Models\Category::where('slug', 'sports-eyewear')->first();
+        $this->assertNull($parent->parent_id);
+
+        // subcategory requires a top-level parent
+        $this->post('/admin/subcategories', ['name' => 'Cycling Glasses'])->assertSessionHasErrors('parent_id');
+        $child = \App\Models\Category::where('slug', 'mens-eyeglasses')->first();
+        $this->post('/admin/subcategories', ['name' => 'Deep', 'parent_id' => $child->id])->assertSessionHasErrors('parent_id');
+        $this->post('/admin/subcategories', ['name' => 'Cycling Glasses', 'parent_id' => $parent->id, 'is_active' => 1, 'add_another' => 1])
+            ->assertRedirect(route('admin.subcategories.create', ['parent' => $parent->id]));
+        $sub = \App\Models\Category::where('slug', 'cycling-glasses')->first();
+        $this->assertEquals($parent->id, $sub->parent_id);
+
+        $this->get('/admin/subcategories?parent='.$parent->id)->assertOk()->assertSee('Cycling Glasses')->assertDontSee("Men's Eyeglasses");
+        $this->get("/admin/subcategories/{$sub->slug}/edit")->assertOk();
+        $this->get("/admin/categories/{$sub->slug}/edit")->assertRedirect(route('admin.subcategories.edit', $sub));
+
+        $this->delete("/admin/categories/{$parent->slug}")->assertSessionHas('error');
+        $this->delete("/admin/subcategories/{$sub->slug}")->assertSessionHas('success');
+        $this->delete("/admin/categories/{$parent->slug}")->assertSessionHas('success');
+    }
 }

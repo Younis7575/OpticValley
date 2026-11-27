@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 W, H = int(sys.argv[1]), int(sys.argv[2])
 OUT = sys.argv[3]
+LANG = os.environ.get('AD_LANG', 'en')
 FPS, DUR = 30, 30
 N = FPS * DUR
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -84,7 +85,41 @@ def text_tracked(draw, xy, s, fnt, fill, tracking=0.0, anchor='mm'):
         x += w + sp
     return total
 
+URDU = {
+    'SEE THE WORLD DIFFERENTLY.': 'دنیا کو نئے انداز سے دیکھیں',
+    'STYLE THAT DEFINES YOU.': 'وہ انداز جو آپ کی پہچان ہے',
+    'DISCOVER YOUR PERFECT FRAME.': 'اپنا بہترین فریم تلاش کریں',
+    'PRECISION.  COMFORT.  CONFIDENCE.': 'درستگی  ۔  آرام  ۔  اعتماد',
+    'Luxury Meets Technology.': 'لگژری اور ٹیکنالوجی کا حسین امتزاج',
+    'FIND YOUR PERFECT VISION.': 'اپنا پرفیکٹ چشمہ آج ہی چُنیں',
+    'SHOP NOW': 'ابھی خریدیں',
+}
+_UR_CACHE = {}
+URDU_BIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'urdu')
+def urdu_img(text, size, color, bold=True):
+    key = (text, int(size), color, bold)
+    if key not in _UR_CACHE:
+        import subprocess, tempfile
+        if not os.path.exists(URDU_BIN):
+            subprocess.run(['swiftc', '-O', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'urdu.swift'), '-o', URDU_BIN], check=True)
+        tmp = tempfile.NamedTemporaryFile(suffix='.png', delete=False).name
+        hexc = '%02x%02x%02x' % color
+        subprocess.run([URDU_BIN, text, 'NotoNastaliqUrdu-Bold' if bold else 'NotoNastaliqUrdu', str(int(size)), hexc, tmp], check=True)
+        im = Image.open(tmp).convert('RGBA'); os.remove(tmp)
+        bb = im.split()[3].getbbox(); _UR_CACHE[key] = im.crop(bb) if bb else im
+    return _UR_CACHE[key]
+
 def overlay_text(base, lines, cy, alpha, color=(255, 255, 255)):
+    if LANG == 'ur' and lines and lines[0][0] in URDU:
+        s0, fp, sz = lines[0][:3]; col = lines[0][4] if len(lines[0]) > 4 else color
+        im = urdu_img(URDU[s0], sz * U * 1.25, col)
+        maxw = W * 0.9
+        if im.width > maxw: im = im.resize((int(maxw), int(im.height * maxw / im.width)), Image.LANCZOS)
+        paste_center(base, im, W / 2, cy, alpha)
+        return
+    return _overlay_text_en(base, lines, cy, alpha, color)
+
+def _overlay_text_en(base, lines, cy, alpha, color=(255, 255, 255)):
     """lines: list of (text, fontpath, size, tracking, color?)"""
     if alpha <= 0: return
     layer = Image.new('RGBA', base.size, (0, 0, 0, 0)); d = ImageDraw.Draw(layer)
@@ -288,17 +323,22 @@ def scene6(f):  # 26-30s call to action
     lg = fit(LOGO, W * (0.42 if PORTRAIT else 0.17), H * 0.2)
     paste_center(img, lg, W / 2, H * (0.53 if not PORTRAIT else 0.47), ease(seg(f, 790, 815)))
     a = ease(seg(f, 800, 825))
-    overlay_text(img, [('FIND YOUR PERFECT VISION.', SERIF, 44 if not PORTRAIT else 40, 0.08, (21, 21, 21))], H * (0.69 if not PORTRAIT else 0.62), a)
-    overlay_text(img, [('OPTICVALLEY.CO', SANS, 40 if not PORTRAIT else 38, 0.32, (143, 106, 47))], H * (0.78 if not PORTRAIT else 0.7), ease(seg(f, 812, 835)))
+    UR = LANG == 'ur'
+    overlay_text(img, [('FIND YOUR PERFECT VISION.', SERIF, 44 if not PORTRAIT else 40, 0.08, (21, 21, 21))], H * ((0.715 if UR else 0.69) if not PORTRAIT else (0.635 if UR else 0.62)), a)
+    overlay_text(img, [('OPTICVALLEY.CO', SANS, 40 if not PORTRAIT else 38, 0.32, (143, 106, 47))], H * ((0.81 if UR else 0.78) if not PORTRAIT else (0.715 if UR else 0.7)), ease(seg(f, 812, 835)))
     # SHOP NOW pill
     pa = ease(seg(f, 825, 850))
     if pa > 0:
         layer = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(layer)
-        bw, bh = 300 * U, 70 * U; cx, cy = W / 2, H * (0.88 if not PORTRAIT else 0.8)
+        bw, bh = 300 * U, 70 * U; cx, cy = W / 2, H * ((0.9 if LANG == 'ur' else 0.88) if not PORTRAIT else 0.8)
         pulse = 1 + 0.03 * math.sin((f - 825) / FPS * 6) * (f > 850)
         bw *= pulse; bh *= pulse
         d.rounded_rectangle((cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2), radius=int(bh / 2), fill=(21, 21, 21, int(255 * pa)))
-        text_tracked(d, (cx, cy), 'SHOP NOW', font(SANS, 24 * U), GOLD + (int(255 * pa),), 0.25)
+        if LANG == 'ur':
+            ui = urdu_img(URDU['SHOP NOW'], 30 * U, GOLD); layer.alpha_composite(Image.new('RGBA', (1, 1)), (0, 0))
+            ui2 = ui.copy(); ui2.putalpha(ui.split()[3].point(lambda v: int(v * pa))); layer.alpha_composite(ui2, (int(cx - ui.width / 2), int(cy - ui.height / 2)))
+        else:
+            text_tracked(d, (cx, cy), 'SHOP NOW', font(SANS, 24 * U), GOLD + (int(255 * pa),), 0.25)
         img.alpha_composite(layer)
     return img
 
@@ -322,5 +362,9 @@ if __name__ == '__main__':
     for f in range(start, end):
         p = os.path.join(OUT, f'{f:04d}.jpg')
         if os.path.exists(p): continue
-        frame(f).convert('RGB').save(p, quality=93)
+        im = frame(f).convert('RGB')
+        g = np.random.default_rng(f).normal(0, 5.5, (H // 2, W // 2, 1)).astype(np.float32)
+        g = np.asarray(Image.fromarray(np.clip(g[..., 0] + 128, 0, 255).astype('uint8')).resize((W, H), Image.BILINEAR)).astype(np.float32)[..., None] - 128
+        im = Image.fromarray(np.clip(np.asarray(im).astype(np.float32) + g, 0, 255).astype('uint8'))
+        im.save(p, quality=93)
         if f % 30 == 0: print(f, flush=True)

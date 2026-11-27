@@ -7,6 +7,7 @@
         ['Catalogue', [
             ['admin.products.index', 'Products', 'products', 'm3 7 9-4 9 4v10l-9 4-9-4V7Zm0 0 9 4 9-4M12 11v10'],
             ['admin.categories.index', 'Categories', 'products', 'M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v4H4zM14 15h6v4h-6z'],
+            ['admin.subcategories.index', 'Subcategories', 'products', 'M5 4v12a3 3 0 0 0 3 3h11M9 9h10M9 14h10'],
             ['admin.brands.index', 'Brands', 'products', 'M3 12V4h8l10 10-8 8L3 12Z'],
             ['admin.lens-options.index', 'Lens options', 'products', 'M7 12a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z'],
         ]],
